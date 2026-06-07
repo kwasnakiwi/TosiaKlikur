@@ -39,6 +39,13 @@
     padding: 12px;
     cursor: pointer;
     transition: background-color 0.1s ease-out;
+    position: relative;
+    &:has(.blue) {
+      background-color: rgb(136, 136, 240);
+      &:hover {
+        background-color: rgb(95, 95, 170);
+      }
+    }
     &:hover {
       background-color: var(--accent-hover2);
     }
@@ -47,6 +54,23 @@
 .side-bar-icon {
   font-size: 25px;
   color: var(--accent-color);
+  &.blue {
+    color: rgb(14, 14, 192);
+  }
+}
+.auto-clicker-status {
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  border-radius: 50%;
+  left: 20px;
+  top: 5px;
+  &.active {
+    background-color: green;
+  }
+  &.inactive {
+    background-color: red;
+  }
 }
 .tosia-img {
   position: absolute;
@@ -81,4 +105,31 @@
 .score {
   color: var(--text-main);
   font-size: 60px;
+}
+.floating-click-text {
+  position: fixed;
+  pointer-events: none;
+  color: var(--accent-hover);
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 2.5rem;
+  text-shadow: 0 0 8px var(--clicker-btn-glow);
+  transform: translate(-50%, -50%);
+  animation: floatUpAndFade 1s ease-out forwards;
+  z-index: 1;
+}
+
+@keyframes floatUpAndFade {
+  0% {
+    transform: translate(-50%, -50%) translateY(0) scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-40px) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(-100px) scale(1);
+    opacity: 0;
+  }
 }

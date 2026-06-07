@@ -1,31 +1,31 @@
+import { useState } from "react";
 import "./../styles/Shop.css";
 
-function Shop({ setShowShop }) {
+function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
+  const [error, setError] = useState(null);
+
   const shopData = [
     {
-      name: "Boostery",
-      desc: "Uczulają palce na zyski – natychmiastowe zwiększenie siły kliknięć",
+      name: "Ulepszenia",
+      desc: "Ulepszenia trwale ułatwiają rozgrywkę",
       offers: [
         {
-          id: "click_2x",
-          name: "Podwójne Kliknięcie",
-          desc: "Każde Twoje kliknięcie generuje 2x więcej punktów.",
-          basePrice: 100,
-          multiplier: 2,
+          id: "upg_click_1",
+          name: "Kliknięcie +1",
+          desc: "Do każdego twojego kliknięcia dodawane jest 1 dodatkowe.",
+          basePrice: 1000,
         },
         {
-          id: "click_5x",
-          name: "Mega Klik",
-          desc: "Zwiększa siłę pojedynczego kliknięcia o 5x.",
-          basePrice: 1500,
-          multiplier: 5,
+          id: "upg_click_2",
+          name: "Kliknięcie +2",
+          desc: "Do każdego twojego kliknięcia dodawane są 2 dodatkowe.",
+          basePrice: 5000,
         },
         {
-          id: "crit_chance",
+          id: "upg_crit_chance_1",
           name: "Szczęśliwy Traf",
-          desc: "+5% szansy na krytyczne kliknięcie (wartość x10).",
-          basePrice: 500,
-          maxLevel: 10,
+          desc: "+10% szansy na krytyczne kliknięcie (wartość x5).",
+          basePrice: 15000,
         },
       ],
     },
@@ -34,49 +34,40 @@ function Shop({ setShowShop }) {
       desc: "Zatrudnij pomocników, którzy klikają za Ciebie, nawet gdy odpoczywasz",
       offers: [
         {
-          id: "auto_cursor",
-          name: "Zautomatyzowany Kursor",
+          id: "auto_clicker_1",
+          name: "Podstawowy autoklikacz",
           desc: "Klika automatycznie 1 raz na sekundę.",
-          basePrice: 50,
-          cps: 1,
-        },
-        {
-          id: "auto_bot",
-          name: "ClickBot v1.0",
-          desc: "Szybki algorytm generujący 10 kliknięć na sekundę.",
-          basePrice: 800,
-          cps: 10,
-        },
-        {
-          id: "auto_ai",
-          name: "Kwantowa Sztuczna Inteligencja",
-          desc: "Generuje potężną ilość 150 kliknięć na sekundę.",
-          basePrice: 12000,
-          cps: 150,
-        },
-      ],
-    },
-    {
-      name: "Inwestycje",
-      desc: "Ulepszenia pasywnego przychodu i bonusy długoterminowe",
-      offers: [
-        {
-          id: "passive_bank",
-          name: "Lokalny Bank",
-          desc: "Zwiększa ogólny pasywny przychód z Autoklikaczy o 10%.",
-          basePrice: 3000,
-          perk: "cps_boost_10",
-        },
-        {
-          id: "offline_profit",
-          name: "Karnet Nocny",
-          desc: "Pozwala zbierać 50% punktów, kiedy aplikacja jest wyłączona.",
-          basePrice: 5000,
-          maxLevel: 1,
+          basePrice: 10000,
         },
       ],
     },
   ];
+
+  const buyItem = (offer) => {
+    if (!offer) return;
+
+    if (score >= offer.basePrice) {
+      setScore((prev) => {
+        const newScore = prev - offer.basePrice;
+        localStorage.setItem("score", btoa(newScore.toString()));
+        return newScore;
+      });
+
+      setUpgrades((prev) => {
+        const newUpgrades = [...prev, offer.id];
+        localStorage.setItem("upgrades", btoa(JSON.stringify(newUpgrades)));
+        return newUpgrades;
+      });
+
+      if (offer.id === "auto_clicker_1") {
+        localStorage.setItem("auto_clicker_1_active", btoa("true"));
+      }
+
+      setError(null);
+    } else {
+      setError("Masz za mało kliknięć");
+    }
+  };
 
   return (
     <>
@@ -87,13 +78,29 @@ function Shop({ setShowShop }) {
             <h2 className="shop-row-title">{row.name}</h2>
             <p className="shop-row-desc">{row.desc}</p>
             <div className="shop-row-offers">
-              {row.offers.map((offer, i) => (
-                <div key={i} className="shop-offer">
-                  <h3 className="shop-offer-name">{offer.name}</h3>
-                  <p className="shop-offer-desc">{offer.desc}</p>
-                  <span className="shop-offer-price">{offer.basePrice}</span>
-                </div>
-              ))}
+              {row.offers.map((offer, i) => {
+                // Sprawdzamy czy ID ulepszenia znajduje się w tablicy
+                const isBought = upgrades.includes(offer.id);
+
+                return (
+                  <div
+                    key={i}
+                    className={`shop-offer ${isBought ? "is-locked" : ""}`}
+                  >
+                    <h3 className="shop-offer-name">{offer.name}</h3>
+                    <p className="shop-offer-desc">{offer.desc}</p>
+                    <span className="shop-offer-price">
+                      {offer.basePrice} kliknięć
+                    </span>
+                    <button
+                      className={`shop-offer-button ${isBought ? "bought" : ""}`}
+                      onClick={() => !isBought && buyItem(offer)}
+                    >
+                      {isBought ? "Zakupiono" : "Kup"}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
