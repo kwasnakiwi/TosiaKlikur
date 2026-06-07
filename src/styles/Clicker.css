@@ -8,6 +8,13 @@
   --accent-hover: #e6c200; /* Ciemniejsze złoto po najechaniu myszką */
   --accent-hover2: #b89d028f; /* Ciemniejsze złoto po najechaniu myszką */
   --accent-glow: rgba(255, 215, 0, 0.3); /* Poświata do animacji kliknięcia */
+  --bg-panel: #1e1e1e;
+  --bg-card: #252525;
+  --border-subtle: #2d2d2d;
+  --border-focus: #444444;
+  --text-dark: #121212;
+  --status-available: #2ed573;
+  --status-available-glow: rgba(46, 213, 115, 0.2);
 }
 .main-container {
   background-image: url(/src/assets/imgs/tlo_aplikacji.png);
@@ -21,6 +28,7 @@
   text-align: center;
   img {
     width: 500px;
+    user-select: none;
   }
 }
 .side-bar {
@@ -46,6 +54,12 @@
         background-color: rgb(95, 95, 170);
       }
     }
+    &:has(.green) {
+      background-color: rgb(6, 83, 29);
+      &:hover {
+        background-color: rgb(11, 70, 14);
+      }
+    }
     &:hover {
       background-color: var(--accent-hover2);
     }
@@ -56,6 +70,9 @@
   color: var(--accent-color);
   &.blue {
     color: rgb(14, 14, 192);
+  }
+  &.green {
+    color: rgb(102, 204, 43);
   }
 }
 .auto-clicker-status {
@@ -132,4 +149,31 @@
     transform: translate(-50%, -50%) translateY(-100px) scale(1);
     opacity: 0;
   }
+}
+.version-box {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none; 
+}
+
+.version {
+  color: var(--status-available);
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px var(--status-available-glow);
+}
+
+.added-things {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }

@@ -31,7 +31,7 @@ function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
     },
     {
       name: "Autoklikacze",
-      desc: "Zatrudnij pomocników, którzy klikają za Ciebie, nawet gdy odpoczywasz",
+      desc: "Ty odpoczywasz, kliknięcia same się zdobywają",
       offers: [
         {
           id: "auto_clicker_1",
@@ -79,7 +79,6 @@ function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
             <p className="shop-row-desc">{row.desc}</p>
             <div className="shop-row-offers">
               {row.offers.map((offer, i) => {
-                // Sprawdzamy czy ID ulepszenia znajduje się w tablicy
                 const isBought = upgrades.includes(offer.id);
 
                 return (
