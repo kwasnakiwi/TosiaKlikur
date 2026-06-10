@@ -37,7 +37,7 @@ function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
           id: "upg_crit_chance_2",
           name: "Szczęśliwy Traf 2",
           desc: "+15% szansy na krytyczne kliknięcie (wartość x5).",
-          basePrice: 15000,
+          basePrice: 67000,
         },
       ],
     },

@@ -225,9 +225,10 @@ function Clicker() {
       )}
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.2.0</p>
+          <p className="version">BETA 1.2.1</p>
           <p className="added-things">+ Kilka nowych upgradów</p>
           <p className="added-things">+ System skinów</p>
+          <p className="added-things">+ Bug fixy</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
