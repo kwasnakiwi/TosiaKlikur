@@ -2,18 +2,21 @@ import {
   FaShop as ShopIcon,
   FaArrowPointer as ArrowPointer,
   FaArrowRotateRight as RebirthIcon,
+  FaShirt as ShirtIcon,
 } from "react-icons/fa6";
 import title from "./../assets/imgs/tosiaklikur.gif";
 import "./../styles/Clicker.css";
 import { useEffect, useState } from "react";
+import Shop from "./Shop";
+import Rebirths from "./Rebirths";
 import tosia1 from "./../assets/tosia_imgs/tosia1.jpg";
 import tosia2 from "./../assets/tosia_imgs/tosia2.jpg";
 import tosia3 from "./../assets/tosia_imgs/tosia3.jpg";
 import tosia4 from "./../assets/tosia_imgs/tosia4.jpg";
 import tosia5 from "./../assets/tosia_imgs/tosia5.jpg";
 import tosia6 from "./../assets/tosia_imgs/tosia6.jpg";
-import Shop from "./Shop";
-import Rebirths from "./Rebirths";
+import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.png";
+import Skins from "./Skins";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
@@ -55,27 +58,43 @@ const getEncryptedAutoStatus = () => {
   }
 };
 
+const getEncryptedSkins = () => {
+  const saved = localStorage.getItem("skins");
+  if (!saved) return ["skin_tosia1"];
+  try {
+    return atob(JSON.parse(saved));
+  } catch (e) {
+    return ["skin_tosia1"];
+  }
+};
+
+const getEncryptedCurrentSkin = () => {
+  const saved = localStorage.getItem("current_skin");
+  if (!saved) return "skin_tosia1";
+  try {
+    return atob(saved);
+  } catch (e) {
+    return "skin_tosia1";
+  }
+};
+
 // localStorage.setItem("score", btoa("1000000000"));
 // localStorage.setItem("rebirths", btoa("2"));
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
-  const [tosia, setTosia] = useState(tosia1);
+  const [tosia, setTosia] = useState(null);
   const [showShop, setShowShop] = useState(false);
   const [showRebirths, setShowRebirths] = useState(false);
   const [upgrades, setUpgrades] = useState(() => getEncryptedUpgrades());
   const [autoActive, setAutoActive] = useState(() => getEncryptedAutoStatus());
   const [rebirths, setRebirths] = useState(() => getEncryptedRebirths());
   const [floatingTexts, setFloatingTexts] = useState([]);
-
-  useEffect(() => {
-    if (score >= 0) setTosia(tosia1);
-    if (score >= 1000) setTosia(tosia2);
-    if (score >= 5000) setTosia(tosia3);
-    if (score >= 10000) setTosia(tosia4);
-    if (score >= 25000) setTosia(tosia5);
-    if (score >= 100000) setTosia(tosia6);
-  }, [score]);
+  const [showSkins, setShowSkins] = useState(false);
+  const [skins, setSkins] = useState(() => getEncryptedSkins());
+  const [currentSkin, setCurrentSkin] = useState(() =>
+    getEncryptedCurrentSkin(),
+  );
 
   useEffect(() => {
     const hasAutoClicker = upgrades.includes("auto_clicker_1");
@@ -88,6 +107,27 @@ function Clicker() {
     }
   }, [upgrades, autoActive, rebirths]);
 
+  useEffect(() => {
+    setTosia(() => {
+      switch (currentSkin) {
+        case "skin_tosia1":
+          return tosia1;
+        case "skin_tosia2":
+          return tosia2;
+        case "skin_tosia3":
+          return tosia3;
+        case "skin_tosia4":
+          return tosia4;
+        case "skin_tosia5":
+          return tosia5;
+        case "skin_tosia6":
+          return tosia6;
+        case "skin_tosia_rozbieraj_sie":
+          return tosiaRozbierajSie;
+      }
+    });
+  }, [currentSkin]);
+
   const getClickAddition = () => {
     let addition = 1;
     let isCrit = false;
@@ -95,7 +135,9 @@ function Clicker() {
 
     if (upgrades.includes("upg_click_1")) addition += 1;
     if (upgrades.includes("upg_click_2")) addition += 2;
+    if (upgrades.includes("upg_click_3")) addition += 5;
     if (upgrades.includes("upg_crit_chance_1")) critChance += 0.1;
+    if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
     if (rebirths >= 1) addition *= 2;
     if (rebirths >= 2) critChance += 0.1;
 
@@ -161,6 +203,17 @@ function Clicker() {
           setScore={setScore}
         />
       )}
+      {showSkins && (
+        <Skins
+          setShowSkins={setShowSkins}
+          skins={skins}
+          setSkins={setSkins}
+          score={score}
+          setScore={setScore}
+          currentSkin={currentSkin}
+          setCurrentSkin={setCurrentSkin}
+        />
+      )}
       {showRebirths && (
         <Rebirths
           setShowRebirths={setShowRebirths}
@@ -172,8 +225,9 @@ function Clicker() {
       )}
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.1.0</p>
-          <p className="added-things">+ System rebirthów (2 pierwsze)</p>
+          <p className="version">BETA 1.2.0</p>
+          <p className="added-things">+ Kilka nowych upgradów</p>
+          <p className="added-things">+ System skinów</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
@@ -181,6 +235,9 @@ function Clicker() {
         <div className="side-bar">
           <button onClick={() => setShowShop(true)} title="sklep">
             <ShopIcon className="side-bar-icon" />
+          </button>
+          <button onClick={() => setShowSkins(true)} title="skiny">
+            <ShirtIcon className="side-bar-icon red" />
           </button>
           <button onClick={handleAutoClickerChange} title="autoklikacz">
             <ArrowPointer className="side-bar-icon blue" />

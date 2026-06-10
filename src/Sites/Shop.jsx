@@ -22,9 +22,21 @@ function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
           basePrice: 5000,
         },
         {
+          id: "upg_click_3",
+          name: "Kliknięcie +5",
+          desc: "Do każdego twojego kliknięcia dodawane jest 5 dodatkowych.",
+          basePrice: 25000,
+        },
+        {
           id: "upg_crit_chance_1",
           name: "Szczęśliwy Traf",
           desc: "+10% szansy na krytyczne kliknięcie (wartość x5).",
+          basePrice: 15000,
+        },
+        {
+          id: "upg_crit_chance_2",
+          name: "Szczęśliwy Traf 2",
+          desc: "+15% szansy na krytyczne kliknięcie (wartość x5).",
           basePrice: 15000,
         },
       ],

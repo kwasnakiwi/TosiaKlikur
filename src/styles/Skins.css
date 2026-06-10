@@ -1,0 +1,26 @@
+:root {
+  --bg-main: #121212; /* Głęboka, matowa czerń na tło */
+  --bg-secondary: #1e1e1e; /* Jaśniejsza czerń na przyciski/karty */
+  --border-color: #2d2d2d; /* Subtelne obramowania */
+  --text-main: #ffffff; /* Wyrazisty biały tekst */
+  --text-muted: #a0a0a0; /* Szary tekst do statystyk w tle */
+  --accent-color: #ffd700; /* Żywe, growe złoto */
+  --accent-hover: #e6c200; /* Ciemniejsze złoto po najechaniu myszką */
+  --accent-hover2: #b89d028f; /* Ciemniejsze złoto po najechaniu myszką */
+  --accent-glow: rgba(255, 215, 0, 0.3); /* Poświata do animacji kliknięcia */
+  --bg-panel: #1e1e1e;
+  --bg-card: #252525;
+  --border-subtle: #2d2d2d;
+  --border-focus: #444444;
+  --text-dark: #121212;
+  --status-available: #2ed573;
+  --status-available-glow: rgba(46, 213, 115, 0.2);
+}
+.shop-offer-img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto;
+}

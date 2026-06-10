@@ -60,6 +60,12 @@
         background-color: rgb(11, 70, 14);
       }
     }
+    &:has(.red) {
+      background-color: rgb(129, 7, 7);
+      &:hover {
+        background-color: rgb(179, 15, 15);
+      }
+    }
     &:hover {
       background-color: var(--accent-hover2);
     }
@@ -73,6 +79,9 @@
   }
   &.green {
     color: rgb(102, 204, 43);
+  }
+  &.red{
+    color: rgb(235, 198, 198);
   }
 }
 .auto-clicker-status {
