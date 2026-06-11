@@ -17,7 +17,7 @@
   --status-available-glow: rgba(46, 213, 115, 0.2);
 }
 .main-container {
-  background-image: url(/src/assets/imgs/tlo_aplikacji.png);
+  background-image: url(/src/assets/imgs/tlo_aplikacji.webp);
   height: 100vh;
   background-repeat: no-repeat;
   background-position: center;
