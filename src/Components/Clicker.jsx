@@ -302,7 +302,7 @@ function Clicker() {
       )}
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.3.0</p>
+          <p className="version">BETA 1.3.1</p>
           <p className="added-things">+ Jeden nowy skin</p>
           <p className="added-things">+ System levelowania (naprawiony)</p>
           <p className="added-things">+ Bug fixy</p>
