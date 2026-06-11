@@ -25,7 +25,7 @@ function LevelBar({ level, xp }) {
   };
 
   const currentRange = levelsConfig[level];
-  const isMaxLevel = level >= 6;
+  const isMaxLevel = level >= 20;
 
   let progressPercent = 0;
   let xpOnCurrentLevel = xp;

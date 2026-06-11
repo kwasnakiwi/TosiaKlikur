@@ -64,7 +64,7 @@ const getEncryptedSkins = () => {
   const saved = localStorage.getItem("skins");
   if (!saved) return ["skin_tosia1"];
   try {
-    return JSON.parse(atob(saved));
+    return JSON.parse(atob(saved)) || ["skin_tosia1"];
   } catch (e) {
     return ["skin_tosia1"];
   }
@@ -89,10 +89,6 @@ const getEncryptedXp = () => {
     return 0;
   }
 };
-
-// localStorage.setItem("xp", btoa(105000));
-// localStorage.setItem("score", btoa("100000000000000000"));
-// localStorage.setItem("rebirths", btoa("2"));
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
@@ -142,6 +138,8 @@ function Clicker() {
           return tosiaRozbierajSie;
         case "skin_tosia_misia":
           return tosiaMisia;
+        default:
+          return tosia1;
       }
     });
   }, [currentSkin]);
@@ -156,24 +154,30 @@ function Clicker() {
             return newScore;
           });
           break;
-        case 3:
-          break;
-        case 4:
-          break;
-        case 5:
-          break;
-        case 6:
-          break;
         default:
           break;
       }
     };
 
     let calculatedLevel = 1;
-    if (xp >= 5500) calculatedLevel = 6;
-    else if (xp >= 3500) calculatedLevel = 5;
-    else if (xp >= 2000) calculatedLevel = 4;
-    else if (xp >= 1000) calculatedLevel = 3;
+    if (xp >= 95000) calculatedLevel = 20;
+    else if (xp >= 85500) calculatedLevel = 19;
+    else if (xp >= 76500) calculatedLevel = 18;
+    else if (xp >= 68000) calculatedLevel = 17;
+    else if (xp >= 60000) calculatedLevel = 16;
+    else if (xp >= 52500) calculatedLevel = 15;
+    else if (xp >= 45500) calculatedLevel = 14;
+    else if (xp >= 39000) calculatedLevel = 13;
+    else if (xp >= 33000) calculatedLevel = 12;
+    else if (xp >= 27500) calculatedLevel = 11;
+    else if (xp >= 22500) calculatedLevel = 10;
+    else if (xp >= 18000) calculatedLevel = 9;
+    else if (xp >= 14000) calculatedLevel = 8;
+    else if (xp >= 10500) calculatedLevel = 7;
+    else if (xp >= 7500) calculatedLevel = 6;
+    else if (xp >= 5000) calculatedLevel = 5;
+    else if (xp >= 3000) calculatedLevel = 4;
+    else if (xp >= 1500) calculatedLevel = 3;
     else if (xp >= 500) calculatedLevel = 2;
 
     if (calculatedLevel > level) {
@@ -244,7 +248,7 @@ function Clicker() {
 
     setXp((prev) => {
       const newXp = prev + currentAdditionData.xpAddition;
-      localStorage.setItem("xp", btoa(newXp));
+      localStorage.setItem("xp", btoa(newXp.toString()));
       return newXp;
     });
   };
@@ -259,6 +263,8 @@ function Clicker() {
       return nextState;
     });
   };
+
+  // localStorage.setItem("xp", btoa("0"))
 
   return (
     <>
@@ -298,7 +304,7 @@ function Clicker() {
         <div className="version-box">
           <p className="version">BETA 1.3.0</p>
           <p className="added-things">+ Jeden nowy skin</p>
-          <p className="added-things">+ System levelowania (bardzo raczkujący)</p>
+          <p className="added-things">+ System levelowania (naprawiony)</p>
           <p className="added-things">+ Bug fixy</p>
         </div>
         <div className="title">
