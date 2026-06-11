@@ -6,6 +6,7 @@ import tosia4 from "./../assets/tosia_imgs/tosia4.jpg";
 import tosia5 from "./../assets/tosia_imgs/tosia5.jpg";
 import tosia6 from "./../assets/tosia_imgs/tosia6.jpg";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.png";
+import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.jpg";
 import { useState } from "react";
 
 function Skins({
@@ -90,6 +91,15 @@ function Skins({
           img: tosiaRozbierajSie,
           price: 5000,
           equipped: currentSkin === "skin_tosia_rozbieraj_sie",
+          type: "skin",
+        },
+        {
+          id: "skin_tosia_misia",
+          name: "Tosia-Misia",
+          desc: "A może jednak Misia-Tosia?",
+          img: tosiaMisia,
+          price: 5000,
+          equipped: currentSkin === "skin_tosia_misia",
           type: "skin",
         },
       ],

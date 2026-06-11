@@ -16,7 +16,9 @@ import tosia4 from "./../assets/tosia_imgs/tosia4.jpg";
 import tosia5 from "./../assets/tosia_imgs/tosia5.jpg";
 import tosia6 from "./../assets/tosia_imgs/tosia6.jpg";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.png";
+import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.jpg";
 import Skins from "./Skins";
+import LevelBar from "./LevelBar";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
@@ -62,7 +64,7 @@ const getEncryptedSkins = () => {
   const saved = localStorage.getItem("skins");
   if (!saved) return ["skin_tosia1"];
   try {
-    return atob(JSON.parse(saved));
+    return JSON.parse(atob(saved));
   } catch (e) {
     return ["skin_tosia1"];
   }
@@ -78,7 +80,18 @@ const getEncryptedCurrentSkin = () => {
   }
 };
 
-// localStorage.setItem("score", btoa("1000000000"));
+const getEncryptedXp = () => {
+  const saved = localStorage.getItem("xp");
+  if (!saved) return 0;
+  try {
+    return Number(atob(saved));
+  } catch (e) {
+    return 0;
+  }
+};
+
+// localStorage.setItem("xp", btoa(105000));
+// localStorage.setItem("score", btoa("100000000000000000"));
 // localStorage.setItem("rebirths", btoa("2"));
 
 function Clicker() {
@@ -95,6 +108,9 @@ function Clicker() {
   const [currentSkin, setCurrentSkin] = useState(() =>
     getEncryptedCurrentSkin(),
   );
+  const [xp, setXp] = useState(() => getEncryptedXp());
+  const [level, setLevel] = useState(1);
+  const [showLevelUp, setShowLevelUp] = useState(false);
 
   useEffect(() => {
     const hasAutoClicker = upgrades.includes("auto_clicker_1");
@@ -124,14 +140,58 @@ function Clicker() {
           return tosia6;
         case "skin_tosia_rozbieraj_sie":
           return tosiaRozbierajSie;
+        case "skin_tosia_misia":
+          return tosiaMisia;
       }
     });
   }, [currentSkin]);
+
+  useEffect(() => {
+    const handleLevelRewards = (newLevel) => {
+      switch (newLevel) {
+        case 2:
+          setScore((prev) => {
+            const newScore = prev + 5000;
+            localStorage.setItem("score", btoa(newScore.toString()));
+            return newScore;
+          });
+          break;
+        case 3:
+          break;
+        case 4:
+          break;
+        case 5:
+          break;
+        case 6:
+          break;
+        default:
+          break;
+      }
+    };
+
+    let calculatedLevel = 1;
+    if (xp >= 5500) calculatedLevel = 6;
+    else if (xp >= 3500) calculatedLevel = 5;
+    else if (xp >= 2000) calculatedLevel = 4;
+    else if (xp >= 1000) calculatedLevel = 3;
+    else if (xp >= 500) calculatedLevel = 2;
+
+    if (calculatedLevel > level) {
+      setLevel(calculatedLevel);
+      handleLevelRewards(calculatedLevel);
+
+      setShowLevelUp(true);
+      setTimeout(() => {
+        setShowLevelUp(false);
+      }, 2000);
+    }
+  }, [xp, level]);
 
   const getClickAddition = () => {
     let addition = 1;
     let isCrit = false;
     let critChance = 0;
+    let xpAddition = 1;
 
     if (upgrades.includes("upg_click_1")) addition += 1;
     if (upgrades.includes("upg_click_2")) addition += 2;
@@ -144,9 +204,10 @@ function Clicker() {
     if (Math.random() < critChance) {
       isCrit = true;
       addition *= 5;
+      xpAddition *= 5;
     }
 
-    return { addition, isCrit };
+    return { addition, isCrit, xpAddition };
   };
 
   const addToScore = () => {
@@ -165,6 +226,7 @@ function Clicker() {
       x: randomX,
       y: randomY,
       value: currentAddition,
+      xpValue: currentAdditionData.xpAddition,
       isCrit: currentAdditionData.isCrit,
     };
 
@@ -178,6 +240,12 @@ function Clicker() {
       const newScore = prev + currentAddition;
       localStorage.setItem("score", btoa(newScore.toString()));
       return newScore;
+    });
+
+    setXp((prev) => {
+      const newXp = prev + currentAdditionData.xpAddition;
+      localStorage.setItem("xp", btoa(newXp));
+      return newXp;
     });
   };
 
@@ -223,11 +291,14 @@ function Clicker() {
           setScore={setScore}
         />
       )}
+      {showLevelUp && (
+        <div className="level-up-notification">AWANS! POZIOM {level}</div>
+      )}
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.2.1</p>
-          <p className="added-things">+ Kilka nowych upgradów</p>
-          <p className="added-things">+ System skinów</p>
+          <p className="version">BETA 1.3.0</p>
+          <p className="added-things">+ Jeden nowy skin</p>
+          <p className="added-things">+ System levelowania (bardzo raczkujący)</p>
           <p className="added-things">+ Bug fixy</p>
         </div>
         <div className="title">
@@ -269,11 +340,15 @@ function Clicker() {
             }}
           >
             +{text.value}
+            <span style={{ fontSize: "0.9rem", color: "cornflowerblue" }}>
+              +{text.xpValue}xp
+            </span>
           </span>
         ))}
         <div className="score-label">
           <span className="score">{score}</span>
         </div>
+        <LevelBar level={level} xp={xp} />
       </div>
     </>
   );
