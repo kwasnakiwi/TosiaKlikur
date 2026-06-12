@@ -72,7 +72,13 @@ const getEncryptedSettings = () => {
   }
 };
 
-const CURRENT_VERSION = "BETA 1.4.4";
+const CURRENT_VERSION = "BETA 1.4.5";
+
+if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
+  localStorage.clear();
+
+  localStorage.setItem("game_version", CURRENT_VERSION);
+}
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
