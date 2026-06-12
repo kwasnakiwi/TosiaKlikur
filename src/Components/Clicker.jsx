@@ -7,6 +7,7 @@ import {
 import title from "./../assets/imgs/tosiaklikur.gif";
 import "./../styles/Clicker.css";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { encryptData, decryptData } from "./crypto"; // Import Twoich bezpiecznych funkcji
 import Shop from "./Shop";
 import Rebirths from "./Rebirths";
 import tosia1 from "./../assets/tosia_imgs/tosia1.webp";
@@ -24,76 +25,65 @@ import Settings from "./Settings";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
-  if (!saved) return 0;
-  try {
-    return parseInt(atob(saved)) || 0;
-  } catch (e) {
-    return 0;
-  }
+  return saved ? Number(decryptData(saved, 0)) : 0;
 };
+
 const getEncryptedRebirths = () => {
   const saved = localStorage.getItem("rebirths");
-  if (!saved) return 0;
-  try {
-    return parseInt(atob(saved)) || 0;
-  } catch (e) {
-    return 0;
-  }
+  return saved ? Number(decryptData(saved, 0)) : 0;
 };
+
 const getEncryptedUpgrades = () => {
   const saved = localStorage.getItem("upgrades");
-  if (!saved) return [];
-  try {
-    return JSON.parse(atob(saved)) || [];
-  } catch (e) {
-    return 0;
-  }
+  return saved ? JSON.parse(decryptData(saved, "[]")) : [];
 };
+
 const getEncryptedAutoStatus = () => {
   const saved = localStorage.getItem("auto_clicker_1_active");
   if (!saved) return false;
-  try {
-    return atob(saved) === "true";
-  } catch (e) {
-    return false;
-  }
+  return decryptData(saved, "false") === "true";
 };
+
 const getEncryptedSkins = () => {
   const saved = localStorage.getItem("skins");
-  if (!saved) return ["skin_tosia1"];
-  try {
-    return JSON.parse(atob(saved)) || ["skin_tosia1"];
-  } catch (e) {
-    return ["skin_tosia1"];
-  }
+  return saved
+    ? JSON.parse(decryptData(saved, '["skin_tosia1"]'))
+    : ["skin_tosia1"];
 };
+
 const getEncryptedCurrentSkin = () => {
   const saved = localStorage.getItem("current_skin");
-  if (!saved) return "skin_tosia1";
-  try {
-    return atob(saved);
-  } catch (e) {
-    return "skin_tosia1";
-  }
+  return saved ? decryptData(saved, "skin_tosia1") : "skin_tosia1";
 };
+
 const getEncryptedXp = () => {
   const saved = localStorage.getItem("xp");
-  if (!saved) return 0;
-  try {
-    return Number(atob(saved));
-  } catch (e) {
-    return 0;
-  }
+  return saved ? Number(decryptData(saved, 0)) : 0;
 };
+
 const getEncryptedSettings = () => {
   const saved = localStorage.getItem("settings");
   if (!saved) return [];
   try {
-    return JSON.parse(atob(saved));
+    return JSON.parse(saved); // Ustawienia zostawiamy jawne dla wygody użytkownika
   } catch (e) {
     return [];
   }
 };
+
+const CURRENT_VERSION = "BETA 1.4.2";
+
+if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
+  localStorage.removeItem("score");
+  localStorage.removeItem("xp");
+  localStorage.removeItem("upgrades");
+  localStorage.removeItem("rebirths");
+  localStorage.removeItem("auto_clicker_1_active");
+  localStorage.removeItem("skins");
+  localStorage.removeItem("current_skin");
+
+  localStorage.setItem("game_version", CURRENT_VERSION);
+}
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
@@ -119,6 +109,7 @@ function Clicker() {
   const xpRef = useRef(xp);
   const lastClickTime = useRef(0);
 
+  // Synchronizacja refów z aktualnym stanem, aby kolejka zapisu zawsze miała świeże dane
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
@@ -130,8 +121,8 @@ function Clicker() {
   const queueSaveToLocalStorage = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      localStorage.setItem("score", btoa(scoreRef.current.toString()));
-      localStorage.setItem("xp", btoa(xpRef.current.toString()));
+      localStorage.setItem("score", encryptData(scoreRef.current));
+      localStorage.setItem("xp", encryptData(xpRef.current));
     }, 1000);
   }, []);
 
@@ -168,7 +159,7 @@ function Clicker() {
     const now = Date.now();
     if (now - lastClickTime.current < 40) return;
     lastClickTime.current = now;
-    
+
     const currentAdditionData = getClickAddition();
     const currentAddition = currentAdditionData.addition;
 
@@ -193,8 +184,11 @@ function Clicker() {
       setFloatingTexts((prev) => prev.filter((text) => text.id !== newText.id));
     }, 800);
 
+    // Aktualizujemy stany gry bezpiecznie
     setScore((prev) => prev + currentAddition);
     setXp((prev) => prev + currentAdditionData.xpAddition);
+
+    // Wywołujemy bezpieczny zapis z refów, które zsynchronizują się w useEffect
     queueSaveToLocalStorage();
   }, [getClickAddition, queueSaveToLocalStorage]);
 
@@ -233,10 +227,34 @@ function Clicker() {
     });
   }, [currentSkin]);
 
+  const isMounted = useRef(false);
+
   useEffect(() => {
     const handleLevelRewards = (newLevel) => {
-      if (newLevel === 2) {
-        setScore((prev) => prev + 5000);
+      const savedRewards = localStorage.getItem("claimed_rewards");
+      let claimedRewards = savedRewards
+        ? JSON.parse(decryptData(savedRewards, "[]"))
+        : [];
+
+      if (claimedRewards.includes(newLevel)) return;
+
+      let rewardAmount = 0;
+      if (newLevel === 2) rewardAmount = 5000;
+      if (newLevel === 5) rewardAmount = 15000;
+      if (newLevel === 10) rewardAmount = 50000;
+
+      if (rewardAmount > 0) {
+        claimedRewards.push(newLevel);
+        localStorage.setItem(
+          "claimed_rewards",
+          encryptData(JSON.stringify(claimedRewards)),
+        );
+
+        setScore((prev) => {
+          const nScore = prev + rewardAmount;
+          localStorage.setItem("score", encryptData(nScore));
+          return nScore;
+        });
       }
     };
 
@@ -264,10 +282,15 @@ function Clicker() {
     if (calculatedLevel > level) {
       setLevel(calculatedLevel);
       handleLevelRewards(calculatedLevel);
-      setShowLevelUp(true);
-      setTimeout(() => setShowLevelUp(false), 2000);
+
+      if (isMounted.current) {
+        setShowLevelUp(true);
+        setTimeout(() => setShowLevelUp(false), 2000);
+      }
     }
-  }, [xp, level]);
+
+    isMounted.current = true;
+  }, [xp, level, score]);
 
   const handleAutoClickerChange = () => {
     const hasAutoClicker = upgrades.includes("auto_clicker_1");
@@ -275,7 +298,10 @@ function Clicker() {
 
     setAutoActive((prev) => {
       const nextState = !prev;
-      localStorage.setItem("auto_clicker_1_active", btoa(nextState.toString()));
+      localStorage.setItem(
+        "auto_clicker_1_active",
+        encryptData(nextState.toString()),
+      );
       return nextState;
     });
   };
@@ -284,21 +310,7 @@ function Clicker() {
     settings.find((sett) => sett.id === "sett_show_click_effects")?.value ??
     true;
   const showLevelBar =
-    settings.find((sett) => (sett.id = "sett_show_level_bar"))?.value ?? true;
-
-  const CURRENT_VERSION = "BETA 1.4.1";
-
-  if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-    localStorage.removeItem("score");
-    localStorage.removeItem("xp");
-    localStorage.removeItem("upgrades");
-    localStorage.removeItem("rebirths");
-    localStorage.removeItem("auto_clicker_1_active");
-    localStorage.removeItem("skins");
-    localStorage.removeItem("current_skin");
-
-    localStorage.setItem("game_version", CURRENT_VERSION);
-  }
+    settings.find((sett) => sett.id === "sett_show_level_bar")?.value ?? true;
 
   return (
     <>
@@ -309,6 +321,7 @@ function Clicker() {
           setUpgrades={setUpgrades}
           score={score}
           setScore={setScore}
+          encryptData={encryptData}
         />
       )}
       {showSkins && (
@@ -320,6 +333,7 @@ function Clicker() {
           setScore={setScore}
           currentSkin={currentSkin}
           setCurrentSkin={setCurrentSkin}
+          encryptData={encryptData}
         />
       )}
       {showRebirths && (
@@ -331,6 +345,7 @@ function Clicker() {
           setScore={setScore}
           setUpgrades={setUpgrades}
           setXp={setXp}
+          encryptData={encryptData}
         />
       )}
 
@@ -350,7 +365,7 @@ function Clicker() {
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
           <p className="added-things">
-            + Reset progresu (thanks to TYR_dev (frajer))
+            + Reset progresu znowu (thanks to TYR_dev (frajer))
           </p>
           <p className="added-things">
             + Dodanie kurwa limitu na kliknięcia (thanks to TYR_dev (frajer))

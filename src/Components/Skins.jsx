@@ -17,6 +17,7 @@ function Skins({
   setSkins,
   currentSkin,
   setCurrentSkin,
+  encryptData,
 }) {
   const [error, setError] = useState("");
   const skinsData = [
@@ -110,12 +111,12 @@ function Skins({
     if (score >= offer.price) {
       setSkins((prev) => {
         const newSkins = [...prev, offer.id];
-        localStorage.setItem("skins", btoa(JSON.stringify(newSkins)));
+        localStorage.setItem("skins", encryptData(JSON.stringify(newSkins)));
         return newSkins;
       });
       setScore((prev) => {
         const newScore = prev - offer.price;
-        localStorage.setItem("score", btoa(newScore));
+        localStorage.setItem("score", encryptData(newScore));
         return newScore;
       });
     } else {
@@ -127,7 +128,7 @@ function Skins({
     if (skins.includes(offer.id)) {
       setCurrentSkin((prev) => {
         const newSkin = offer.id;
-        localStorage.setItem("current_skin", btoa(offer.id));
+        localStorage.setItem("current_skin", encryptData(offer.id));
         return newSkin;
       });
     }

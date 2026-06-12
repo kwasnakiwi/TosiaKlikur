@@ -1,7 +1,16 @@
 import { useState } from "react";
 import "./../styles/Rebirths.css";
 
-function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore, setUpgrades, setXp }) {
+function Rebirths({
+  setShowRebirths,
+  rebirths,
+  setRebirths,
+  score,
+  setScore,
+  setUpgrades,
+  setXp,
+  encryptData
+}) {
   const rebirthRequirements = [
     { clicks: 250000, label: "250000 kliknięć" },
     { clicks: 1500000, label: "1500000 kliknięć" },
@@ -22,22 +31,22 @@ function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore, set
     }
     setRebirths((prev) => {
       const newRebirths = prev + 1;
-      localStorage.setItem("rebirths", btoa(newRebirths));
+      localStorage.setItem("rebirths", encryptData(newRebirths));
       return newRebirths;
     });
     setScore(() => {
       const newScore = 0;
-      localStorage.setItem("score", btoa(newScore));
+      localStorage.setItem("score", encryptData(newScore));
       return newScore;
     });
     setUpgrades(() => {
       const newUpgrades = [];
-      localStorage.setItem("upgrades", btoa(newUpgrades));
+      localStorage.setItem("upgrades", encryptData(newUpgrades));
       return newUpgrades;
     });
     setXp(() => {
       const newXp = 0;
-      localStorage.setItem("score", btoa(newXp));
+      localStorage.setItem("score", encryptData(newXp));
       return newXp;
     });
     setShowRebirths(false);

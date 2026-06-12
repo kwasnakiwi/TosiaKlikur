@@ -1,7 +1,14 @@
 import { useState } from "react";
 import "./../styles/Shop.css";
 
-function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
+function Shop({
+  setShowShop,
+  upgrades,
+  setUpgrades,
+  score,
+  setScore,
+  encryptData,
+}) {
   const [error, setError] = useState(null);
 
   const shopData = [
@@ -79,18 +86,18 @@ function Shop({ setShowShop, upgrades, setUpgrades, score, setScore }) {
     if (score >= offer.basePrice) {
       setScore((prev) => {
         const newScore = prev - offer.basePrice;
-        localStorage.setItem("score", btoa(newScore.toString()));
+        localStorage.setItem("score", encryptData(newScore.toString()));
         return newScore;
       });
 
       setUpgrades((prev) => {
         const newUpgrades = [...prev, offer.id];
-        localStorage.setItem("upgrades", btoa(JSON.stringify(newUpgrades)));
+        localStorage.setItem("upgrades", encryptData(JSON.stringify(newUpgrades)));
         return newUpgrades;
       });
 
       if (offer.id === "auto_clicker_1") {
-        localStorage.setItem("auto_clicker_1_active", btoa("true"));
+        localStorage.setItem("auto_clicker_1_active", encryptData("true"));
       }
 
       setError(null);

@@ -1,6 +1,6 @@
 import "./../styles/Settings.css";
 
-function Settings({ setShowSettings, settings, setSettings }) {
+function Settings({ setShowSettings, settings, setSettings, encryptData }) {
   const settingsConfig = [
     {
       id: "sett_show_click_effects",
@@ -41,7 +41,7 @@ function Settings({ setShowSettings, settings, setSettings }) {
 
     setSettings(newSettings);
 
-    localStorage.setItem("settings", btoa(JSON.stringify(newSettings)));
+    localStorage.setItem("settings", encryptData(JSON.stringify(newSettings)));
   };
 
   return (
