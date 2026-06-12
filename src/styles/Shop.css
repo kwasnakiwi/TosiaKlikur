@@ -71,6 +71,7 @@
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 10px;
+  scroll-behavior: smooth;
 }
 
 .shop-offer {
@@ -155,5 +156,17 @@
   }
   &:not(.bought) {
     cursor: pointer;
+  }
+}
+.balance {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text-main);
+  span {
+    color: var(--status-available);
+    font-weight: 600;
   }
 }

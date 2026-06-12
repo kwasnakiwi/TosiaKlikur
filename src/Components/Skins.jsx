@@ -86,7 +86,7 @@ function Skins({
       offers: [
         {
           id: "skin_tosia_rozbieraj_sie",
-          name: "Tosia \"rozbieraj się\"",
+          name: 'Tosia "rozbieraj się"',
           desc: "Czy to wgl jest Tosia?",
           img: tosiaRozbierajSie,
           price: 5000,
@@ -137,6 +137,9 @@ function Skins({
     <>
       <div className="shop-back-overlay" onClick={() => setShowSkins(false)} />
       <div className="shop">
+        <span className="balance">
+          Stan konta: <span>{score} kliknięć</span>
+        </span>
         {skinsData.map((row, i) => (
           <div key={i} className="shop-row">
             <h2 className="shop-row-title">{row.name}</h2>

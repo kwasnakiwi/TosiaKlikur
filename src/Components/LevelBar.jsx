@@ -3,26 +3,26 @@ import "./../styles/LevelBar.css";
 
 const LevelBar = React.memo(({ level, xp }) => {
   const levelsConfig = {
-    1: { min: 0, max: 500 },
-    2: { min: 500, max: 1500 },
-    3: { min: 1500, max: 3000 },
-    4: { min: 3000, max: 5000 },
-    5: { min: 5000, max: 7500 },
-    6: { min: 7500, max: 10500 },
-    7: { min: 10500, max: 14000 },
-    8: { min: 14000, max: 18000 },
-    9: { min: 18000, max: 22500 },
-    10: { min: 22500, max: 27500 },
-    11: { min: 27500, max: 33000 },
-    12: { min: 33000, max: 39000 },
-    13: { min: 39000, max: 45500 },
-    14: { min: 45500, max: 52500 },
-    15: { min: 52500, max: 60000 },
-    16: { min: 60000, max: 68000 },
-    17: { min: 68000, max: 76500 },
-    18: { min: 76500, max: 85500 },
-    19: { min: 85500, max: 95000 },
-    20: { min: 95000, max: 105000 },
+    1: { min: 0, max: 1000 },
+    2: { min: 1000, max: 3500 },
+    3: { min: 3500, max: 8000 },
+    4: { min: 8000, max: 15000 },
+    5: { min: 15000, max: 25000 },
+    6: { min: 25000, max: 40000 },
+    7: { min: 40000, max: 60000 },
+    8: { min: 60000, max: 85000 },
+    9: { min: 85000, max: 115000 },
+    10: { min: 115000, max: 150000 },
+    11: { min: 150000, max: 195000 },
+    12: { min: 195000, max: 250000 },
+    13: { min: 250000, max: 315000 },
+    14: { min: 315000, max: 390000 },
+    15: { min: 390000, max: 480000 },
+    16: { min: 480000, max: 585000 },
+    17: { min: 585000, max: 705000 },
+    18: { min: 705000, max: 840000 },
+    19: { min: 840000, max: 1000000 },
+    20: { min: 1000000, max: 1200000 },
   };
 
   const currentRange = levelsConfig[level];
@@ -46,28 +46,23 @@ const LevelBar = React.memo(({ level, xp }) => {
   return (
     <div className="level-bar-box">
       <span className="next-level">{isMaxLevel ? "MAX" : level + 1}</span>
-      <div className="level-bar-back">
-        <div
-          className="level-bar-value"
-          style={{
-            height: `${progressPercent}%`,
-          }}
-        />
+      <div className="level-bar-container">
+        <span className="required-xp">
+          {isMaxLevel ? "" : `${xpRequiredForNext}xp`}
+        </span>
+        <div className="level-bar-back">
+          <div
+            className="level-bar-value"
+            style={{
+              height: `${progressPercent}%`,
+            }}
+          />
+        </div>
+        <span className="current-xp">
+          {isMaxLevel ? "MAX XP" : `${xpOnCurrentLevel}xp`}
+        </span>
       </div>
-      <span className="current-level">{level}</span>
-
-      <span
-        className="current-xp"
-        style={{
-          bottom: progressPercent > 0 ? `${progressPercent}%` : "20px",
-        }}
-      >
-        {isMaxLevel ? "" : `${xpOnCurrentLevel}xp`}
-      </span>
-
-      <span className="required-xp">
-        {isMaxLevel ? "" : `${xpRequiredForNext}xp`}
-      </span>
+      <span className="current-level">LVL {level}</span>
     </div>
   );
 });

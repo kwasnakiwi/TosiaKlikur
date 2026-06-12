@@ -143,8 +143,14 @@ function Clicker() {
     if (upgrades.includes("upg_click_1")) addition += 1;
     if (upgrades.includes("upg_click_2")) addition += 2;
     if (upgrades.includes("upg_click_3")) addition += 5;
+
+    if (upgrades.includes("upg_xp_1")) xpAddition += 1;
+    if (upgrades.includes("upg_xp_2")) xpAddition += 2;
+    if (upgrades.includes("upg_xp_3")) xpAddition += 5;
+
     if (upgrades.includes("upg_crit_chance_1")) critChance += 0.1;
     if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
+
     if (rebirths >= 1) addition *= 2;
     if (rebirths >= 2) critChance += 0.1;
 
@@ -230,25 +236,25 @@ function Clicker() {
     };
 
     let calculatedLevel = 1;
-    if (xp >= 95000) calculatedLevel = 20;
-    else if (xp >= 85500) calculatedLevel = 19;
-    else if (xp >= 76500) calculatedLevel = 18;
-    else if (xp >= 68000) calculatedLevel = 17;
-    else if (xp >= 60000) calculatedLevel = 16;
-    else if (xp >= 52500) calculatedLevel = 15;
-    else if (xp >= 45500) calculatedLevel = 14;
-    else if (xp >= 39000) calculatedLevel = 13;
-    else if (xp >= 33000) calculatedLevel = 12;
-    else if (xp >= 27500) calculatedLevel = 11;
-    else if (xp >= 22500) calculatedLevel = 10;
-    else if (xp >= 18000) calculatedLevel = 9;
-    else if (xp >= 14000) calculatedLevel = 8;
-    else if (xp >= 10500) calculatedLevel = 7;
-    else if (xp >= 7500) calculatedLevel = 6;
-    else if (xp >= 5000) calculatedLevel = 5;
-    else if (xp >= 3000) calculatedLevel = 4;
-    else if (xp >= 1500) calculatedLevel = 3;
-    else if (xp >= 500) calculatedLevel = 2;
+    if (xp >= 1000000) calculatedLevel = 20;
+    else if (xp >= 840000) calculatedLevel = 19;
+    else if (xp >= 705000) calculatedLevel = 18;
+    else if (xp >= 585000) calculatedLevel = 17;
+    else if (xp >= 480000) calculatedLevel = 16;
+    else if (xp >= 390000) calculatedLevel = 15;
+    else if (xp >= 315000) calculatedLevel = 14;
+    else if (xp >= 250000) calculatedLevel = 13;
+    else if (xp >= 195000) calculatedLevel = 12;
+    else if (xp >= 150000) calculatedLevel = 11;
+    else if (xp >= 115000) calculatedLevel = 10;
+    else if (xp >= 85000) calculatedLevel = 9;
+    else if (xp >= 60000) calculatedLevel = 8;
+    else if (xp >= 40000) calculatedLevel = 7;
+    else if (xp >= 25000) calculatedLevel = 6;
+    else if (xp >= 15000) calculatedLevel = 5;
+    else if (xp >= 8000) calculatedLevel = 4;
+    else if (xp >= 3500) calculatedLevel = 3;
+    else if (xp >= 1000) calculatedLevel = 2;
 
     if (calculatedLevel > level) {
       setLevel(calculatedLevel);
@@ -321,11 +327,9 @@ function Clicker() {
 
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.3.3</p>
-          <p className="added-things">+ Ekstremalna Optymalizacja (w teori) </p>
-          <p className="added-things">
-            + Dodane podstawowe ustawienia (będą się rozwijały w przyszłości)
-          </p>
+          <p className="version">BETA 1.4.0</p>
+          <p className="added-things">+ Ekstremalne zmiany w balansie gry</p>
+          <p className="added-things">+ Nowe upgrady</p>
         </div>
         <div className="title">
           <img src={title} alt="" />

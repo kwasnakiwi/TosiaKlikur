@@ -3,8 +3,8 @@ import "./../styles/Rebirths.css";
 
 function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore }) {
   const rebirthRequirements = [
-    { clicks: 50000, label: "50000 kliknięć" },
     { clicks: 250000, label: "250000 kliknięć" },
+    { clicks: 1500000, label: "1500000 kliknięć" },
   ];
   const rebirthRewards = [
     { multiplayer: 2, label: "mnożnik x2 do kliknięć!" },
