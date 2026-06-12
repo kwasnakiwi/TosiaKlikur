@@ -66,6 +66,12 @@
         background-color: rgb(179, 15, 15);
       }
     }
+    &:has(.lightblue) {
+      background-color: rgb(34, 236, 243);
+      &:hover {
+        background-color: rgb(8, 172, 150);
+      }
+    }
     &:hover {
       background-color: var(--accent-hover2);
     }
@@ -80,7 +86,7 @@
   &.green {
     color: rgb(102, 204, 43);
   }
-  &.red{
+  &.red {
     color: rgb(235, 198, 198);
   }
 }
@@ -119,6 +125,9 @@
     }
   }
 }
+.tosia-img__no-effects{
+  scale: 1 !important;
+}
 .score-label {
   position: absolute;
   left: 50%;
@@ -140,9 +149,10 @@
   font-weight: 800;
   font-size: 2.5rem;
   text-shadow: 0 0 8px var(--clicker-btn-glow);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translate3d(0, 0, 0);
   animation: floatUpAndFade 1s ease-out forwards;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
 @keyframes floatUpAndFade {
@@ -166,7 +176,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .version {

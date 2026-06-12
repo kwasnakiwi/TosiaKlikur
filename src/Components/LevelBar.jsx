@@ -1,6 +1,7 @@
+import React from "react";
 import "./../styles/LevelBar.css";
 
-function LevelBar({ level, xp }) {
+const LevelBar = React.memo(({ level, xp }) => {
   const levelsConfig = {
     1: { min: 0, max: 500 },
     2: { min: 500, max: 1500 },
@@ -69,6 +70,8 @@ function LevelBar({ level, xp }) {
       </span>
     </div>
   );
-}
+});
+
+LevelBar.displayName = "LevelBar";
 
 export default LevelBar;

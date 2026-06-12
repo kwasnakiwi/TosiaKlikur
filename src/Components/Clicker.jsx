@@ -6,7 +6,7 @@ import {
 } from "react-icons/fa6";
 import title from "./../assets/imgs/tosiaklikur.gif";
 import "./../styles/Clicker.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Shop from "./Shop";
 import Rebirths from "./Rebirths";
 import tosia1 from "./../assets/tosia_imgs/tosia1.webp";
@@ -17,8 +17,10 @@ import tosia5 from "./../assets/tosia_imgs/tosia5.webp";
 import tosia6 from "./../assets/tosia_imgs/tosia6.webp";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.webp";
 import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.webp";
+import SettingsIcon from "./../assets/imgs/sett.svg";
 import Skins from "./Skins";
 import LevelBar from "./LevelBar";
+import Settings from "./Settings";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
@@ -29,7 +31,6 @@ const getEncryptedScore = () => {
     return 0;
   }
 };
-
 const getEncryptedRebirths = () => {
   const saved = localStorage.getItem("rebirths");
   if (!saved) return 0;
@@ -39,17 +40,15 @@ const getEncryptedRebirths = () => {
     return 0;
   }
 };
-
 const getEncryptedUpgrades = () => {
   const saved = localStorage.getItem("upgrades");
   if (!saved) return [];
   try {
     return JSON.parse(atob(saved)) || [];
   } catch (e) {
-    return [];
+    return 0;
   }
 };
-
 const getEncryptedAutoStatus = () => {
   const saved = localStorage.getItem("auto_clicker_1_active");
   if (!saved) return false;
@@ -59,7 +58,6 @@ const getEncryptedAutoStatus = () => {
     return false;
   }
 };
-
 const getEncryptedSkins = () => {
   const saved = localStorage.getItem("skins");
   if (!saved) return ["skin_tosia1"];
@@ -69,7 +67,6 @@ const getEncryptedSkins = () => {
     return ["skin_tosia1"];
   }
 };
-
 const getEncryptedCurrentSkin = () => {
   const saved = localStorage.getItem("current_skin");
   if (!saved) return "skin_tosia1";
@@ -79,7 +76,6 @@ const getEncryptedCurrentSkin = () => {
     return "skin_tosia1";
   }
 };
-
 const getEncryptedXp = () => {
   const saved = localStorage.getItem("xp");
   if (!saved) return 0;
@@ -87,6 +83,15 @@ const getEncryptedXp = () => {
     return Number(atob(saved));
   } catch (e) {
     return 0;
+  }
+};
+const getEncryptedSettings = () => {
+  const saved = localStorage.getItem("settings");
+  if (!saved) return [];
+  try {
+    return JSON.parse(atob(saved));
+  } catch (e) {
+    return [];
   }
 };
 
@@ -107,6 +112,80 @@ function Clicker() {
   const [xp, setXp] = useState(() => getEncryptedXp());
   const [level, setLevel] = useState(1);
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState(() => getEncryptedSettings());
+  const saveTimeoutRef = useRef(null);
+  const scoreRef = useRef(score);
+  const xpRef = useRef(xp);
+
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  useEffect(() => {
+    xpRef.current = xp;
+  }, [xp]);
+
+  const queueSaveToLocalStorage = useCallback(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      localStorage.setItem("score", btoa(scoreRef.current.toString()));
+      localStorage.setItem("xp", btoa(xpRef.current.toString()));
+    }, 1000);
+  }, []);
+
+  const getClickAddition = useCallback(() => {
+    let addition = 1;
+    let isCrit = false;
+    let critChance = 0;
+    let xpAddition = 1;
+
+    if (upgrades.includes("upg_click_1")) addition += 1;
+    if (upgrades.includes("upg_click_2")) addition += 2;
+    if (upgrades.includes("upg_click_3")) addition += 5;
+    if (upgrades.includes("upg_crit_chance_1")) critChance += 0.1;
+    if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
+    if (rebirths >= 1) addition *= 2;
+    if (rebirths >= 2) critChance += 0.1;
+
+    if (Math.random() < critChance) {
+      isCrit = true;
+      addition *= 5;
+      xpAddition *= 5;
+    }
+
+    return { addition, isCrit, xpAddition };
+  }, [upgrades, rebirths]);
+
+  const addToScore = useCallback(() => {
+    const currentAdditionData = getClickAddition();
+    const currentAddition = currentAdditionData.addition;
+
+    const marginX = window.innerWidth * 0.1;
+    const marginY = window.innerHeight * 0.1;
+    const randomX = marginX + Math.random() * (window.innerWidth - marginX * 2);
+    const randomY =
+      marginY + Math.random() * (window.innerHeight - marginY * 2);
+
+    const newText = {
+      id: Date.now() + Math.random(),
+      x: randomX,
+      y: randomY,
+      value: currentAddition,
+      xpValue: currentAdditionData.xpAddition,
+      isCrit: currentAdditionData.isCrit,
+    };
+
+    setFloatingTexts((prev) => [...prev, newText]);
+
+    setTimeout(() => {
+      setFloatingTexts((prev) => prev.filter((text) => text.id !== newText.id));
+    }, 800);
+
+    setScore((prev) => prev + currentAddition);
+    setXp((prev) => prev + currentAdditionData.xpAddition);
+    queueSaveToLocalStorage();
+  }, [getClickAddition, queueSaveToLocalStorage]);
 
   useEffect(() => {
     const hasAutoClicker = upgrades.includes("auto_clicker_1");
@@ -114,10 +193,9 @@ function Clicker() {
       const interval = setInterval(() => {
         addToScore();
       }, 1000);
-
       return () => clearInterval(interval);
     }
-  }, [upgrades, autoActive, rebirths]);
+  }, [upgrades, autoActive, addToScore]);
 
   useEffect(() => {
     setTosia(() => {
@@ -146,16 +224,8 @@ function Clicker() {
 
   useEffect(() => {
     const handleLevelRewards = (newLevel) => {
-      switch (newLevel) {
-        case 2:
-          setScore((prev) => {
-            const newScore = prev + 5000;
-            localStorage.setItem("score", btoa(newScore.toString()));
-            return newScore;
-          });
-          break;
-        default:
-          break;
+      if (newLevel === 2) {
+        setScore((prev) => prev + 5000);
       }
     };
 
@@ -183,75 +253,10 @@ function Clicker() {
     if (calculatedLevel > level) {
       setLevel(calculatedLevel);
       handleLevelRewards(calculatedLevel);
-
       setShowLevelUp(true);
-      setTimeout(() => {
-        setShowLevelUp(false);
-      }, 2000);
+      setTimeout(() => setShowLevelUp(false), 2000);
     }
   }, [xp, level]);
-
-  const getClickAddition = () => {
-    let addition = 1;
-    let isCrit = false;
-    let critChance = 0;
-    let xpAddition = 1;
-
-    if (upgrades.includes("upg_click_1")) addition += 1;
-    if (upgrades.includes("upg_click_2")) addition += 2;
-    if (upgrades.includes("upg_click_3")) addition += 5;
-    if (upgrades.includes("upg_crit_chance_1")) critChance += 0.1;
-    if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
-    if (rebirths >= 1) addition *= 2;
-    if (rebirths >= 2) critChance += 0.1;
-
-    if (Math.random() < critChance) {
-      isCrit = true;
-      addition *= 5;
-      xpAddition *= 5;
-    }
-
-    return { addition, isCrit, xpAddition };
-  };
-
-  const addToScore = () => {
-    const currentAdditionData = getClickAddition();
-    const currentAddition = currentAdditionData.addition;
-
-    const marginX = window.innerWidth * 0.1;
-    const marginY = window.innerHeight * 0.1;
-
-    const randomX = marginX + Math.random() * (window.innerWidth - marginX * 2);
-    const randomY =
-      marginY + Math.random() * (window.innerHeight - marginY * 2);
-
-    const newText = {
-      id: Date.now() + Math.random(),
-      x: randomX,
-      y: randomY,
-      value: currentAddition,
-      xpValue: currentAdditionData.xpAddition,
-      isCrit: currentAdditionData.isCrit,
-    };
-
-    setFloatingTexts((prev) => [...prev, newText]);
-
-    setTimeout(() => {
-      setFloatingTexts((prev) => prev.filter((text) => text.id !== newText.id));
-    }, 1000);
-
-    setScore((prev) => {
-      const newScore = prev + currentAddition;
-      localStorage.setItem("score", btoa(newScore.toString()));
-      return newScore;
-    });
-
-    setXp((prev) => {
-      const newXp = prev + currentAdditionData.xpAddition;
-      localStorage.setItem("xp", btoa(newXp.toString()));
-      return newXp;
-    });
-  };
 
   const handleAutoClickerChange = () => {
     const hasAutoClicker = upgrades.includes("auto_clicker_1");
@@ -264,7 +269,11 @@ function Clicker() {
     });
   };
 
-  // localStorage.setItem("xp", btoa("0"))
+  const showClickEffects =
+    settings.find((sett) => sett.id === "sett_show_click_effects")?.value ??
+    true;
+  const showLevelBar =
+    settings.find((sett) => (sett.id = "sett_show_level_bar"))?.value ?? true;
 
   return (
     <>
@@ -297,13 +306,26 @@ function Clicker() {
           setScore={setScore}
         />
       )}
+
       {showLevelUp && (
         <div className="level-up-notification">AWANS! POZIOM {level}</div>
       )}
+
+      {showSettings && (
+        <Settings
+          setShowSettings={setShowSettings}
+          settings={settings}
+          setSettings={setSettings}
+        />
+      )}
+
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.3.2</p>
-          <p className="added-things">+ Lekka ptymalizacja</p>
+          <p className="version">BETA 1.3.3</p>
+          <p className="added-things">+ Ekstremalna Optymalizacja (w teori) </p>
+          <p className="added-things">
+            + Dodane podstawowe ustawienia (będą się rozwijały w przyszłości)
+          </p>
         </div>
         <div className="title">
           <img src={title} alt="" />
@@ -318,41 +340,50 @@ function Clicker() {
           <button onClick={handleAutoClickerChange} title="autoklikacz">
             <ArrowPointer className="side-bar-icon blue" />
             <span
-              className={`auto-clicker-status ${
-                upgrades.includes("auto_clicker_1") && autoActive
-                  ? "active"
-                  : "inactive"
-              }`}
+              className={`auto-clicker-status ${upgrades.includes("auto_clicker_1") && autoActive ? "active" : "inactive"}`}
             />
           </button>
           <button onClick={() => setShowRebirths(true)} title="rebirth">
             <RebirthIcon className="side-bar-icon green" />
           </button>
+          <button onClick={() => setShowSettings(true)} title="ustawienia">
+            <img
+              src={SettingsIcon}
+              className="side-bar-icon lightblue"
+              alt=""
+            />
+          </button>
         </div>
         <div className="tosia-img">
-          <img onClick={(e) => addToScore(e)} src={tosia} alt="" />
+          <img
+            className={!showClickEffects ? "tosia-img__no-effects" : ""}
+            onClick={addToScore}
+            src={tosia}
+            alt=""
+          />
         </div>
-        {floatingTexts.map((text) => (
-          <span
-            key={text.id}
-            className="floating-click-text"
-            style={{
-              top: text.y,
-              left: text.x,
-              color: text.isCrit ? "tomato" : undefined,
-              fontSize: text.isCrit ? "3rem" : undefined,
-            }}
-          >
-            +{text.value}
-            <span style={{ fontSize: "0.9rem", color: "cornflowerblue" }}>
-              +{text.xpValue}xp
+        {showClickEffects &&
+          floatingTexts.map((text) => (
+            <span
+              key={text.id}
+              className="floating-click-text"
+              style={{
+                top: text.y,
+                left: text.x,
+                color: text.isCrit ? "tomato" : undefined,
+                fontSize: text.isCrit ? "3rem" : undefined,
+              }}
+            >
+              +{text.value}
+              <span style={{ fontSize: "0.9rem", color: "cornflowerblue" }}>
+                +{text.xpValue}xp
+              </span>
             </span>
-          </span>
-        ))}
+          ))}
         <div className="score-label">
           <span className="score">{score}</span>
         </div>
-        <LevelBar level={level} xp={xp} />
+        {showLevelBar && <LevelBar level={level} xp={xp} />}
       </div>
     </>
   );

@@ -23,4 +23,6 @@
   border-radius: 50%;
   display: block;
   margin: 0 auto;
+  image-rendering: -webkit-optimize-contrast;
+  backface-visibility: hidden;
 }
