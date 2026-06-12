@@ -7,6 +7,7 @@ import tosia5 from "./../assets/tosia_imgs/tosia5.webp";
 import tosia6 from "./../assets/tosia_imgs/tosia6.webp";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.webp";
 import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.webp";
+import tyrosia from "./../assets/tosia_imgs/tyrosia.webp";
 import { useState } from "react";
 
 function Skins({
@@ -101,6 +102,15 @@ function Skins({
           img: tosiaMisia,
           price: 5000,
           equipped: currentSkin === "skin_tosia_misia",
+          type: "skin",
+        },
+        {
+          id: "skin_tyrosia",
+          name: "Tyrosia",
+          desc: "CO TO KURWA JEST",
+          img: tyrosia,
+          price: 5000,
+          equipped: currentSkin === "skin_tyrosia",
           type: "skin",
         },
       ],

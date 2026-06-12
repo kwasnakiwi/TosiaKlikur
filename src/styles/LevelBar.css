@@ -81,7 +81,7 @@
 .current-xp,
 .required-xp {
   position: absolute;
-  left: 45px;
+  right: -15px;
   font-weight: 500;
   font-size: 11px;
   color: var(--text-muted);
