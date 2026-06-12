@@ -117,6 +117,7 @@ function Clicker() {
   const saveTimeoutRef = useRef(null);
   const scoreRef = useRef(score);
   const xpRef = useRef(xp);
+  const lastClickTime = useRef(0);
 
   useEffect(() => {
     scoreRef.current = score;
@@ -164,6 +165,10 @@ function Clicker() {
   }, [upgrades, rebirths]);
 
   const addToScore = useCallback(() => {
+    const now = Date.now();
+    if (now - lastClickTime.current < 40) return;
+    lastClickTime.current = now;
+    
     const currentAdditionData = getClickAddition();
     const currentAddition = currentAdditionData.addition;
 
@@ -281,6 +286,20 @@ function Clicker() {
   const showLevelBar =
     settings.find((sett) => (sett.id = "sett_show_level_bar"))?.value ?? true;
 
+  const CURRENT_VERSION = "BETA 1.4.1";
+
+  if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
+    localStorage.removeItem("score");
+    localStorage.removeItem("xp");
+    localStorage.removeItem("upgrades");
+    localStorage.removeItem("rebirths");
+    localStorage.removeItem("auto_clicker_1_active");
+    localStorage.removeItem("skins");
+    localStorage.removeItem("current_skin");
+
+    localStorage.setItem("game_version", CURRENT_VERSION);
+  }
+
   return (
     <>
       {showShop && (
@@ -310,6 +329,8 @@ function Clicker() {
           setRebirths={setRebirths}
           score={score}
           setScore={setScore}
+          setUpgrades={setUpgrades}
+          setXp={setXp}
         />
       )}
 
@@ -327,9 +348,13 @@ function Clicker() {
 
       <div className="main-container">
         <div className="version-box">
-          <p className="version">BETA 1.4.0</p>
-          <p className="added-things">+ Ekstremalne zmiany w balansie gry</p>
-          <p className="added-things">+ Nowe upgrady</p>
+          <p className="version">{CURRENT_VERSION}</p>
+          <p className="added-things">
+            + Reset progresu (thanks to TYR_dev (frajer))
+          </p>
+          <p className="added-things">
+            + Dodanie kurwa limitu na kliknięcia (thanks to TYR_dev (frajer))
+          </p>
         </div>
         <div className="title">
           <img src={title} alt="" />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./../styles/Rebirths.css";
 
-function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore }) {
+function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore, setUpgrades, setXp }) {
   const rebirthRequirements = [
     { clicks: 250000, label: "250000 kliknięć" },
     { clicks: 1500000, label: "1500000 kliknięć" },
@@ -29,6 +29,16 @@ function Rebirths({ setShowRebirths, rebirths, setRebirths, score, setScore }) {
       const newScore = 0;
       localStorage.setItem("score", btoa(newScore));
       return newScore;
+    });
+    setUpgrades(() => {
+      const newUpgrades = [];
+      localStorage.setItem("upgrades", btoa(newUpgrades));
+      return newUpgrades;
+    });
+    setXp(() => {
+      const newXp = 0;
+      localStorage.setItem("score", btoa(newXp));
+      return newXp;
     });
     setShowRebirths(false);
   };
