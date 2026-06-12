@@ -74,12 +74,6 @@ const getEncryptedSettings = () => {
 
 const CURRENT_VERSION = "BETA 1.4.5";
 
-if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-  localStorage.clear();
-
-  localStorage.setItem("game_version", CURRENT_VERSION);
-}
-
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
   const [tosia, setTosia] = useState(null);
@@ -104,6 +98,12 @@ function Clicker() {
   const xpRef = useRef(xp);
   const lastClickTime = useRef(0);
   const isMounted = useRef(false);
+
+  if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
+    localStorage.clear();
+
+    localStorage.setItem("game_version", CURRENT_VERSION);
+  }
 
   useEffect(() => {
     scoreRef.current = score;
