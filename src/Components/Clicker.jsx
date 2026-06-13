@@ -111,34 +111,6 @@ const calculateLevelFromXp = (currentXp) => {
   return lvl;
 };
 
-const CURRENT_VERSION = "BETA 1.5.67";
-
-useEffect(() => {
-  const checkForUpdates = async () => {
-    try {
-
-      const response = await fetch(`/version.json?t=${Date.now()}`);
-      if (!response.ok) return;
-
-      const data = await response.json();
-
-      if (data.version && data.version !== CURRENT_VERSION) {
-        localStorage.setItem("game_version", data.version);
-
-        window.location.reload(true);
-      }
-    } catch (error) {
-      console.error("Błąd podczas sprawdzania aktualizacji:", error);
-    }
-  };
-
-  checkForUpdates();
-
-  const interval = setInterval(checkForUpdates, 60000);
-
-  return () => clearInterval(interval);
-}, []);
-
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
   const [tosia, setTosia] = useState(null);
@@ -182,6 +154,33 @@ function Clicker() {
   useEffect(() => {
     const timer = setInterval(() => setTimeTicker(Date.now()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  const CURRENT_VERSION = "BETA 1.5.67";
+
+  useEffect(() => {
+    const checkForUpdates = async () => {
+      try {
+        const response = await fetch(`/version.json?t=${Date.now()}`);
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (data.version && data.version !== CURRENT_VERSION) {
+          localStorage.setItem("game_version", data.version);
+
+          window.location.reload(true);
+        }
+      } catch (error) {
+        console.error("Błąd podczas sprawdzania aktualizacji:", error);
+      }
+    };
+
+    checkForUpdates();
+
+    const interval = setInterval(checkForUpdates, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const queueSaveToLocalStorage = useCallback(() => {
