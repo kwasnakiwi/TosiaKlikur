@@ -96,6 +96,18 @@ function Shop({
         },
       ],
     },
+    {
+      name: "Przepustki",
+      desc: "Odblokuj tajne sekcje i ukryte przywileje",
+      offers: [
+        {
+          id: "access_misia_corner",
+          name: "Karnet do \"Misia corner\"",
+          desc: "Zyskaj ekskluzywne prawo wejścia do strefy Misia corner!",
+          basePrice: 1,
+        },
+      ],
+    },
   ];
 
   const buyItem = (offer) => {
@@ -158,7 +170,7 @@ function Shop({
                     <h3 className="shop-offer-name">{offer.name}</h3>
                     <p className="shop-offer-desc">{offer.desc}</p>
                     <span className="shop-offer-price">
-                      {offer.basePrice} kliknięć
+                      {offer.basePrice.toLocaleString("pl-PL")} kliknięć
                     </span>
                     <button
                       className={`shop-offer-button ${isBought ? "bought" : ""}`}

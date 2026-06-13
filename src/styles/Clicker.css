@@ -125,7 +125,7 @@
     }
   }
 }
-.tosia-img__no-effects{
+.tosia-img__no-effects {
   scale: 1 !important;
 }
 .score-label {
@@ -195,4 +195,84 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+.misia-corner-wrapper {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  &:has(.disabled):hover::after {
+    content: "Musisz kupić karnet do Misia corner w sklepie, żeby do niego wejść";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(calc(-100% - 20px));
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    border: 1px solid var(--accent-color);
+    background-color: var(--bg-card);
+    padding: 10px;
+    border-radius: 12px;
+    opacity: 0;
+    animation: fadeShow 0.1s 1s ease-in forwards;
+  }
+  img {
+    width: 300px;
+    cursor: pointer;
+    user-select: none;
+    &.disabled {
+      filter: grayscale(100%);
+      pointer-events: none;
+    }
+  }
+  .lock-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: white;
+  }
+}
+@keyframes fadeShow {
+  to {
+    opacity: 1;
+  }
+}
+.boosts-wrapper{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.boost{
+  background-color: var(--bg-main);
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 300px;
+  color: var(--text-main);
+  img{
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    color: white;
+    background-color: var(--text-main);
+    padding: 5px;
+    border-radius: 4px;
+  }
+}
+.boost-info{
+  display: flex;
+  flex-direction: column;
+  .name{
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .time-left{
+    font-size: 12px;
+    font-weight: 300;
+  }
 }

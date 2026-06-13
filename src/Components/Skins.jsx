@@ -173,7 +173,9 @@ function Skins({
                     <h3 className="shop-offer-name">{offer.name}</h3>
                     <p className="shop-offer-desc">{offer.desc}</p>
                     <span className="shop-offer-price">
-                      {offer.price > 0 ? `${offer.price} kliknięć` : "Za darmo"}
+                      {offer.price > 0
+                        ? `${offer.price.toLocaleString("pl-PL")} kliknięć`
+                        : "Za darmo"}
                     </span>
                     <button
                       className={`shop-offer-button ${isEquipped ? "bought" : ""}`}

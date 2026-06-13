@@ -3,8 +3,10 @@ import {
   FaArrowPointer as ArrowPointer,
   FaArrowRotateRight as RebirthIcon,
   FaShirt as ShirtIcon,
+  FaLock as LockIcon,
 } from "react-icons/fa6";
 import title from "./../assets/imgs/tosiaklikur.gif";
+import misiaCorner from "./../assets/imgs/misia_corner.webp";
 import "./../styles/Clicker.css";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { encryptData, decryptData } from "./crypto";
@@ -23,6 +25,7 @@ import SettingsIcon from "./../assets/imgs/sett.svg";
 import Skins from "./Skins";
 import LevelBar from "./LevelBar";
 import Settings from "./Settings";
+import MisiaCorner from "./MisiaCorner";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
@@ -74,6 +77,13 @@ const getEncryptedSettings = () => {
   }
 };
 
+const getEncryptedBoosts = () => {
+  const saved = localStorage.getItem("boosts");
+  if (!saved) return [];
+  const decrypted = decryptData(saved, []);
+  return Array.isArray(decrypted) ? decrypted : [];
+};
+
 export const getXpThresholdForLevel = (lvl) => {
   if (lvl <= 1) return 0;
 
@@ -104,7 +114,8 @@ const calculateLevelFromXp = (currentXp) => {
 const CURRENT_VERSION = "BETA 1.4.67";
 
 if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-  localStorage.clear();
+  // localStorage.clear();
+  window.location.reload();
 
   localStorage.setItem("game_version", CURRENT_VERSION);
 }
@@ -131,6 +142,10 @@ function Clicker() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(() => getEncryptedSettings());
+  const [showMisiaCorner, setShowMisiaCorner] = useState(false);
+  const [boosts, setBoosts] = useState(() => getEncryptedBoosts());
+  const [timeTicker, setTimeTicker] = useState(Date.now());
+
   const saveTimeoutRef = useRef(null);
   const scoreRef = useRef(score);
   const xpRef = useRef(xp);
@@ -144,6 +159,11 @@ function Clicker() {
   useEffect(() => {
     xpRef.current = xp;
   }, [xp]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setTimeTicker(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const queueSaveToLocalStorage = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -170,6 +190,10 @@ function Clicker() {
     if (upgrades.includes("upg_crit_chance_1")) critChance += 0.1;
     if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
 
+    const misiaBoost = boosts?.find((b) => b.id === "misia_boost");
+
+    if (misiaBoost && misiaBoost.endTime > Date.now()) addition *= 3;
+
     if (rebirths >= 1) addition *= 2;
     if (rebirths >= 2) critChance += 0.1;
 
@@ -180,7 +204,7 @@ function Clicker() {
     }
 
     return { addition, isCrit, xpAddition };
-  }, [upgrades, rebirths]);
+  }, [upgrades, rebirths, boosts]);
 
   const processScoreGain = useCallback(() => {
     const currentAdditionData = getClickAddition();
@@ -325,6 +349,7 @@ function Clicker() {
     });
   };
 
+  const hasAccessToMisiaCorner = upgrades.includes("access_misia_corner");
   const showClickEffects =
     settings.find((sett) => sett.id === "sett_show_click_effects")?.value ??
     true;
@@ -377,6 +402,16 @@ function Clicker() {
           setShowSettings={setShowSettings}
           settings={settings}
           setSettings={setSettings}
+        />
+      )}
+      {showMisiaCorner && (
+        <MisiaCorner
+          setScore={setScore}
+          setShowMisiaCorner={setShowMisiaCorner}
+          encryptData={encryptData}
+          avaiable={upgrades.includes("access_misia_corner")}
+          boosts={boosts}
+          setBoosts={setBoosts}
         />
       )}
 
@@ -448,6 +483,36 @@ function Clicker() {
           <span className="score">{score}</span>
         </div>
         {showLevelBar && <LevelBar level={level} xp={xp} />}
+        <div className="boosts-wrapper">
+          {boosts
+            ?.filter((boost) => boost.endTime > Date.now())
+            .map((boost, i) => {
+              const msLeft = boost.endTime - Date.now();
+              const totalSeconds = Math.max(0, Math.floor(msLeft / 1000));
+              const minutes = Math.floor(totalSeconds / 60);
+              const seconds = totalSeconds % 60;
+              const formattedTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+              return (
+                <div className="boost" key={boost.id || i}>
+                  <img src={boost.img} alt="" />
+                  <div className="boost-info">
+                    <span className="name">{boost.name}</span>
+                    <span className="time-left">{formattedTime}</span>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+        <div className="misia-corner-wrapper">
+          <img
+            className={!hasAccessToMisiaCorner ? "disabled" : ""}
+            src={misiaCorner}
+            alt="misia corner"
+            onClick={() => setShowMisiaCorner(true)}
+          />
+          {!hasAccessToMisiaCorner && <LockIcon className="lock-icon" />}
+        </div>
       </div>
     </>
   );
