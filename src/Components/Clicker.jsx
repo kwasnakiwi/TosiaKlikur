@@ -111,13 +111,33 @@ const calculateLevelFromXp = (currentXp) => {
   return lvl;
 };
 
-const CURRENT_VERSION = "BETA 1.5.1";
+const CURRENT_VERSION = "BETA 1.5.67";
 
-if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-  window.location.reload();
+useEffect(() => {
+  const checkForUpdates = async () => {
+    try {
 
-  localStorage.setItem("game_version", CURRENT_VERSION);
-}
+      const response = await fetch(`/version.json?t=${Date.now()}`);
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (data.version && data.version !== CURRENT_VERSION) {
+        localStorage.setItem("game_version", data.version);
+
+        window.location.reload(true);
+      }
+    } catch (error) {
+      console.error("Błąd podczas sprawdzania aktualizacji:", error);
+    }
+  };
+
+  checkForUpdates();
+
+  const interval = setInterval(checkForUpdates, 60000);
+
+  return () => clearInterval(interval);
+}, []);
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
