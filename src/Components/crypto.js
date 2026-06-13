@@ -1,11 +1,16 @@
 const SECRET_KEY = "Tyr_devtojebanycfellito2137!#2445";
 
-// Funkcja szyfrująca (zmienia tekst/liczbę w nieczytelny ciąg znaków)
+// Funkcja szyfrująca (zmienia tekst/liczbe/obiekt w nieczytelny ciąg znaków)
 export const encryptData = (data) => {
-  const stringData = String(data);
+  if (data === undefined || data === null) return "";
+
+  // Jeśli przekazano obiekt lub tablicę, zamieniamy na JSON string, inaczej na zwykły string
+  const stringData =
+    typeof data === "object" ? JSON.stringify(data) : String(data);
   let result = "";
 
-  for (let i = 0; i < stringData.charCodeAt(i); i++) {
+  // POPRAWIONO: Pętla musi iść do końca długości stringa (stringData.length)
+  for (let i = 0; i < stringData.length; i++) {
     // Pobieramy kod znaku z danych i kod znaku z klucza
     const charCode = stringData.charCodeAt(i);
     const keyChar = SECRET_KEY.charCodeAt(i % SECRET_KEY.length);
@@ -21,7 +26,7 @@ export const encryptData = (data) => {
   return btoa(result.slice(0, -1));
 };
 
-// Funkcja deszyfrująca (przywraca oryginalną wartość)
+// Funkcja deszyfrująca (przywraca oryginalną wartość i odpowiedni typ)
 export const decryptData = (cipherText, defaultValue = "") => {
   if (!cipherText) return defaultValue;
 
@@ -32,6 +37,8 @@ export const decryptData = (cipherText, defaultValue = "") => {
     let result = "";
 
     for (let i = 0; i < charArray.length; i++) {
+      if (!charArray[i]) continue; // Zabezpieczenie przed pustym elementem
+
       const encryptedChar = parseInt(charArray[i], 10) - 13;
       const keyChar = SECRET_KEY.charCodeAt(i % SECRET_KEY.length);
 
@@ -39,10 +46,30 @@ export const decryptData = (cipherText, defaultValue = "") => {
       result += originalChar;
     }
 
+    // AUTOMATYCZNE PRZYWRACANIE TYPÓW (ułatwia życie w React):
+
+    // 1. Jeśli to tablica lub obiekt JSON (np. upgrades lub skins) -> parsujemy
+    if (
+      (result.startsWith("{") && result.endsWith("}")) ||
+      (result.startsWith("[") && result.endsWith("]"))
+    ) {
+      return JSON.parse(result);
+    }
+
+    // 2. Jeśli to liczba (np. score) -> zwracamy jako typ Number
+    if (!isNaN(result) && result.trim() !== "") {
+      return Number(result);
+    }
+
+    // 3. Jeśli to boolean (np. auto_clicker_active)
+    if (result === "true") return true;
+    if (result === "false") return false;
+
     return result;
   } catch (error) {
     // Jeśli kolega majstrował przy pliku i skasował jakiś znak,
-    // funkcja się wywali - wtedy zwracamy wartość domyślną (np. 0), czyli resetujemy gościa!
+    // funkcja się wywali - wtedy zwracamy wartość domyślną
+    console.warn("Wykryto manipulację przy zapisie lub błąd dekodowania!");
     return defaultValue;
   }
 };

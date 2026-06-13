@@ -36,20 +36,22 @@ const getEncryptedRebirths = () => {
 
 const getEncryptedUpgrades = () => {
   const saved = localStorage.getItem("upgrades");
-  return saved ? JSON.parse(decryptData(saved, "[]")) : [];
+  if (!saved) return [];
+  const decrypted = decryptData(saved, []);
+  return Array.isArray(decrypted) ? decrypted : [];
 };
 
 const getEncryptedAutoStatus = () => {
   const saved = localStorage.getItem("auto_clicker_1_active");
   if (!saved) return false;
-  return decryptData(saved, "false") === "true";
+  return decryptData(saved, false) === true;
 };
 
 const getEncryptedSkins = () => {
   const saved = localStorage.getItem("skins");
-  return saved
-    ? JSON.parse(decryptData(saved, '["skin_tosia1"]'))
-    : ["skin_tosia1"];
+  if (!saved) return ["skin_tosia1"];
+  const decrypted = decryptData(saved, ["skin_tosia1"]);
+  return Array.isArray(decrypted) ? decrypted : ["skin_tosia1"];
 };
 
 const getEncryptedCurrentSkin = () => {
@@ -72,7 +74,40 @@ const getEncryptedSettings = () => {
   }
 };
 
-const CURRENT_VERSION = "BETA 1.4.5";
+export const getXpThresholdForLevel = (lvl) => {
+  if (lvl <= 1) return 0;
+
+  const START_XP = 150;
+  const MULTIPLIER = 1.15;
+
+  let totalXpRequired = 0;
+  let currentLevelRequirement = START_XP;
+
+  for (let i = 2; i <= lvl; i++) {
+    totalXpRequired += Math.round(currentLevelRequirement);
+    currentLevelRequirement *= MULTIPLIER;
+  }
+
+  return totalXpRequired;
+};
+
+const calculateLevelFromXp = (currentXp) => {
+  if (currentXp >= 1000000) return 100;
+
+  let lvl = 1;
+  while (lvl < 100 && currentXp >= getXpThresholdForLevel(lvl + 1)) {
+    lvl++;
+  }
+  return lvl;
+};
+
+const CURRENT_VERSION = "BETA 1.4.67";
+
+if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
+  localStorage.clear();
+
+  localStorage.setItem("game_version", CURRENT_VERSION);
+}
 
 function Clicker() {
   const [score, setScore] = useState(() => getEncryptedScore());
@@ -89,7 +124,10 @@ function Clicker() {
     getEncryptedCurrentSkin(),
   );
   const [xp, setXp] = useState(() => getEncryptedXp());
-  const [level, setLevel] = useState(1);
+  const [level, setLevel] = useState(() => {
+    const initialXp = getEncryptedXp();
+    return calculateLevelFromXp(initialXp);
+  });
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(() => getEncryptedSettings());
@@ -98,12 +136,6 @@ function Clicker() {
   const xpRef = useRef(xp);
   const lastClickTime = useRef(0);
   const isMounted = useRef(false);
-
-  if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-    localStorage.clear();
-
-    localStorage.setItem("game_version", CURRENT_VERSION);
-  }
 
   useEffect(() => {
     scoreRef.current = score;
@@ -243,23 +275,18 @@ function Clicker() {
   useEffect(() => {
     const handleLevelRewards = (newLevel) => {
       const savedRewards = localStorage.getItem("claimed_rewards");
-      let claimedRewards = savedRewards
-        ? JSON.parse(decryptData(savedRewards, "[]"))
-        : [];
+      let claimedRewards = savedRewards ? decryptData(savedRewards, []) : [];
 
       if (claimedRewards.includes(newLevel)) return;
 
       let rewardAmount = 0;
-      if (newLevel === 2) rewardAmount = 5000;
-      if (newLevel === 5) rewardAmount = 15000;
-      if (newLevel === 10) rewardAmount = 50000;
+      if (newLevel === 2) rewardAmount = 1000;
+      if (newLevel === 5) rewardAmount = 3000;
+      if (newLevel === 10) rewardAmount = 10000;
 
       if (rewardAmount > 0) {
         claimedRewards.push(newLevel);
-        localStorage.setItem(
-          "claimed_rewards",
-          encryptData(JSON.stringify(claimedRewards)),
-        );
+        localStorage.setItem("claimed_rewards", encryptData(claimedRewards));
 
         setScore((prev) => {
           const nScore = prev + rewardAmount;
@@ -269,106 +296,7 @@ function Clicker() {
       }
     };
 
-    let calculatedLevel = 1;
-    if (xp >= 1000000) calculatedLevel = 100;
-    else if (xp >= 985000) calculatedLevel = 99;
-    else if (xp >= 970000) calculatedLevel = 98;
-    else if (xp >= 955000) calculatedLevel = 97;
-    else if (xp >= 940000) calculatedLevel = 96;
-    else if (xp >= 925000) calculatedLevel = 95;
-    else if (xp >= 910000) calculatedLevel = 94;
-    else if (xp >= 895000) calculatedLevel = 93;
-    else if (xp >= 880000) calculatedLevel = 92;
-    else if (xp >= 865000) calculatedLevel = 91;
-    else if (xp >= 850000) calculatedLevel = 90;
-    else if (xp >= 835000) calculatedLevel = 89;
-    else if (xp >= 820000) calculatedLevel = 88;
-    else if (xp >= 805000) calculatedLevel = 87;
-    else if (xp >= 790000) calculatedLevel = 86;
-    else if (xp >= 775000) calculatedLevel = 85;
-    else if (xp >= 760000) calculatedLevel = 84;
-    else if (xp >= 745000) calculatedLevel = 83;
-    else if (xp >= 730000) calculatedLevel = 82;
-    else if (xp >= 715000) calculatedLevel = 81;
-    else if (xp >= 700000) calculatedLevel = 80;
-    else if (xp >= 686000) calculatedLevel = 79;
-    else if (xp >= 672000) calculatedLevel = 78;
-    else if (xp >= 658000) calculatedLevel = 77;
-    else if (xp >= 644000) calculatedLevel = 76;
-    else if (xp >= 630000) calculatedLevel = 75;
-    else if (xp >= 616000) calculatedLevel = 74;
-    else if (xp >= 602000) calculatedLevel = 73;
-    else if (xp >= 588000) calculatedLevel = 72;
-    else if (xp >= 574000) calculatedLevel = 71;
-    else if (xp >= 560000) calculatedLevel = 70;
-    else if (xp >= 547000) calculatedLevel = 69;
-    else if (xp >= 534000) calculatedLevel = 68;
-    else if (xp >= 521000) calculatedLevel = 67;
-    else if (xp >= 508000) calculatedLevel = 66;
-    else if (xp >= 495000) calculatedLevel = 65;
-    else if (xp >= 482000) calculatedLevel = 64;
-    else if (xp >= 469000) calculatedLevel = 63;
-    else if (xp >= 456000) calculatedLevel = 62;
-    else if (xp >= 443000) calculatedLevel = 61;
-    else if (xp >= 430000) calculatedLevel = 60;
-    else if (xp >= 418000) calculatedLevel = 59;
-    else if (xp >= 406000) calculatedLevel = 58;
-    else if (xp >= 394000) calculatedLevel = 57;
-    else if (xp >= 382000) calculatedLevel = 56;
-    else if (xp >= 370000) calculatedLevel = 55;
-    else if (xp >= 358000) calculatedLevel = 54;
-    else if (xp >= 346000) calculatedLevel = 53;
-    else if (xp >= 334000) calculatedLevel = 52;
-    else if (xp >= 322000) calculatedLevel = 51;
-    else if (xp >= 310000) calculatedLevel = 50;
-    else if (xp >= 299000) calculatedLevel = 49;
-    else if (xp >= 288000) calculatedLevel = 48;
-    else if (xp >= 277000) calculatedLevel = 47;
-    else if (xp >= 266000) calculatedLevel = 46;
-    else if (xp >= 255000) calculatedLevel = 45;
-    else if (xp >= 244000) calculatedLevel = 44;
-    else if (xp >= 233000) calculatedLevel = 43;
-    else if (xp >= 222000) calculatedLevel = 42;
-    else if (xp >= 211000) calculatedLevel = 41;
-    else if (xp >= 200000) calculatedLevel = 40;
-    else if (xp >= 190000) calculatedLevel = 39;
-    else if (xp >= 180000) calculatedLevel = 38;
-    else if (xp >= 170000) calculatedLevel = 37;
-    else if (xp >= 160000) calculatedLevel = 36;
-    else if (xp >= 150000) calculatedLevel = 35;
-    else if (xp >= 140000) calculatedLevel = 34;
-    else if (xp >= 130000) calculatedLevel = 33;
-    else if (xp >= 120000) calculatedLevel = 32;
-    else if (xp >= 110000) calculatedLevel = 31;
-    else if (xp >= 100000) calculatedLevel = 30;
-    else if (xp >= 91000) calculatedLevel = 29;
-    else if (xp >= 82000) calculatedLevel = 28;
-    else if (xp >= 73000) calculatedLevel = 27;
-    else if (xp >= 64000) calculatedLevel = 26;
-    else if (xp >= 55000) calculatedLevel = 25;
-    else if (xp >= 47000) calculatedLevel = 24;
-    else if (xp >= 39000) calculatedLevel = 23;
-    else if (xp >= 32000) calculatedLevel = 22;
-    else if (xp >= 26000) calculatedLevel = 21;
-    else if (xp >= 21000) calculatedLevel = 20;
-    else if (xp >= 17000) calculatedLevel = 19;
-    else if (xp >= 13800) calculatedLevel = 18;
-    else if (xp >= 11000) calculatedLevel = 17;
-    else if (xp >= 8600) calculatedLevel = 16;
-    else if (xp >= 6600) calculatedLevel = 15;
-    else if (xp >= 5000) calculatedLevel = 14;
-    else if (xp >= 3700) calculatedLevel = 13;
-    else if (xp >= 2700) calculatedLevel = 12;
-    else if (xp >= 1900) calculatedLevel = 11;
-    else if (xp >= 1200) calculatedLevel = 10;
-    else if (xp >= 750) calculatedLevel = 9;
-    else if (xp >= 450) calculatedLevel = 8;
-    else if (xp >= 320) calculatedLevel = 7;
-    else if (xp >= 220) calculatedLevel = 6;
-    else if (xp >= 160) calculatedLevel = 5;
-    else if (xp >= 110) calculatedLevel = 4;
-    else if (xp >= 80) calculatedLevel = 3;
-    else if (xp >= 50) calculatedLevel = 2;
+    const calculatedLevel = calculateLevelFromXp(xp);
 
     if (calculatedLevel > level) {
       setLevel(calculatedLevel);
@@ -456,13 +384,12 @@ function Clicker() {
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
           <p className="added-things">
-            + Nowe zbalansowane ceny i progi levelowe (jebać kurwy z
-            autoclickerem)
+            + Poprawienie fatal błędów które wypierdalały aplikacje (niestety
+            przez to musiał wystąpic reset progresu)
           </p>
           <p className="added-things">
-            + Aż 80 nowych leveli (dalej nie ma nagród, jebać was)
+            + Nowe progi leveli, oraz poprawki z nimi związane
           </p>
-          <p className="added-things">+ 1 nowy skin</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
