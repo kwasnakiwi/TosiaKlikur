@@ -111,13 +111,12 @@ const calculateLevelFromXp = (currentXp) => {
   return lvl;
 };
 
-const CURRENT_VERSION = "BETA 1.4.67";
+const CURRENT_BETA_VERSION = "BETA 1.5.0";
 
-if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
-  // localStorage.clear();
+if (localStorage.getItem("game_version") !== CURRENT_BETA_VERSION) {
   window.location.reload();
 
-  localStorage.setItem("game_version", CURRENT_VERSION);
+  localStorage.setItem("game_version", CURRENT_BETA_VERSION);
 }
 
 function Clicker() {
@@ -417,7 +416,7 @@ function Clicker() {
 
       <div className="main-container">
         <div className="version-box">
-          <p className="version">{CURRENT_VERSION}</p>
+          <p className="version">{CURRENT_BETA_VERSION}</p>
           <p className="added-things">
             + Poprawienie fatal błędów które wypierdalały aplikacje (niestety
             przez to musiał wystąpic reset progresu)
