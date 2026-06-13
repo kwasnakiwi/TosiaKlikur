@@ -111,12 +111,12 @@ const calculateLevelFromXp = (currentXp) => {
   return lvl;
 };
 
-const CURRENT_BETA_VERSION = "BETA 1.5.0";
+const CURRENT_VERSION = "BETA 1.5.1";
 
-if (localStorage.getItem("game_version") !== CURRENT_BETA_VERSION) {
+if (localStorage.getItem("game_version") !== CURRENT_VERSION) {
   window.location.reload();
 
-  localStorage.setItem("game_version", CURRENT_BETA_VERSION);
+  localStorage.setItem("game_version", CURRENT_VERSION);
 }
 
 function Clicker() {
@@ -416,14 +416,8 @@ function Clicker() {
 
       <div className="main-container">
         <div className="version-box">
-          <p className="version">{CURRENT_BETA_VERSION}</p>
-          <p className="added-things">
-            + Poprawienie fatal błędów które wypierdalały aplikacje (niestety
-            przez to musiał wystąpic reset progresu)
-          </p>
-          <p className="added-things">
-            + Nowe progi leveli, oraz poprawki z nimi związane
-          </p>
+          <p className="version">{CURRENT_VERSION}</p>
+          <p className="added-things">+ MISIA CORNER :33333</p>
         </div>
         <div className="title">
           <img src={title} alt="" />

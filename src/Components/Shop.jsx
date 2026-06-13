@@ -104,7 +104,7 @@ function Shop({
           id: "access_misia_corner",
           name: "Karnet do \"Misia corner\"",
           desc: "Zyskaj ekskluzywne prawo wejścia do strefy Misia corner!",
-          basePrice: 1,
+          basePrice: 100000,
         },
       ],
     },
