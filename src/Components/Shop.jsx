@@ -144,7 +144,7 @@ function Shop({
       <div className="shop-back-overlay" onClick={() => setShowShop(false)} />
       <div className="shop">
         <span className="balance">
-          Stan konta: <span>{score} kliknięć</span>
+          Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
         </span>
         {error && (
           <div

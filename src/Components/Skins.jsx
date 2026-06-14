@@ -149,7 +149,10 @@ function Skins({
       <div className="shop-back-overlay" onClick={() => setShowSkins(false)} />
       <div className="shop">
         <span className="balance">
-          Stan konta: <span>{score} kliknięć</span>
+          Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
+        </span>
+        <span className="author-label">
+          BARDZO DZIĘKUJEMY PANU @Kitek Ciapek ZA SKINY DZIABONKOWE!
         </span>
         {skinsData.map((row, i) => (
           <div key={i} className="shop-row">

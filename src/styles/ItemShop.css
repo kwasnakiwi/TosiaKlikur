@@ -16,23 +16,8 @@
   --status-available: #2ed573;
   --status-available-glow: rgba(46, 213, 115, 0.2);
 }
-.shop-offer-img {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 50%;
-  display: block;
-  margin: 0 auto;
-  image-rendering: -webkit-optimize-contrast;
-  backface-visibility: hidden;
-}
-.author-label{
-  position: absolute;
-  font-size: 12px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 300;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 80px;
+.shop-offer-img.item {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
 }

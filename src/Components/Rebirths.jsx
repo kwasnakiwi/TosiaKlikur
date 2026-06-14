@@ -9,11 +9,14 @@ function Rebirths({
   setScore,
   setUpgrades,
   setXp,
-  encryptData
+  setLevel,
+  setBoosts,
+  setItems,
+  encryptData,
 }) {
   const rebirthRequirements = [
-    { clicks: 250000, label: "250000 kliknięć" },
-    { clicks: 1500000, label: "1500000 kliknięć" },
+    { clicks: 250000, label: "250 000 kliknięć" },
+    { clicks: 1500000, label: "1 500 000 kliknięć" },
   ];
   const rebirthRewards = [
     { multiplayer: 2, label: "mnożnik x2 do kliknięć!" },
@@ -46,9 +49,26 @@ function Rebirths({
     });
     setXp(() => {
       const newXp = 0;
-      localStorage.setItem("score", encryptData(newXp));
+      localStorage.setItem("xp", encryptData(newXp));
+      localStorage.setItem("claimed_rewards", encryptData([]));
       return newXp;
     });
+    setLevel(() => {
+      const newLevel = 1;
+      localStorage.setItem("level", encryptData(newLevel));
+      return newLevel;
+    });
+    setBoosts(() => {
+      const newBoosts = [];
+      localStorage.setItem("boosts", encryptData(newBoosts));
+      return newBoosts;
+    });
+    setItems(() => {
+      const newItems = [];
+      localStorage.setItem("boosts", encryptData(newItems));
+      return newItems;
+    });
+
     setShowRebirths(false);
   };
 
@@ -86,7 +106,8 @@ function Rebirths({
             </div>
             <p className="rebirth-warning">
               UWAGA, klikając przycisk "Zrebirthuj" zrzekasz się wszelkich praw
-              i tracisz wszystkie kliknięcia
+              i tracisz wszystkie kliknięcia, poziom doświadczenia, upgrady,
+              itemy w ekwipunku, aktywne boosty itp.
             </p>
             <button className="rebirth-button" onClick={handleRebirth}>
               Zrebirthuj

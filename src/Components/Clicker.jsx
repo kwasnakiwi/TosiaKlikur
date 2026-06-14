@@ -4,7 +4,9 @@ import {
   FaArrowRotateRight as RebirthIcon,
   FaShirt as ShirtIcon,
   FaLock as LockIcon,
+  FaCartShopping as ItemShopIcon,
 } from "react-icons/fa6";
+import { BsBackpack as BackpackIcon } from "react-icons/bs";
 import title from "./../assets/imgs/tosiaklikur.gif";
 import misiaCorner from "./../assets/imgs/misia_corner.webp";
 import "./../styles/Clicker.css";
@@ -26,6 +28,8 @@ import Skins from "./Skins";
 import LevelBar from "./LevelBar";
 import Settings from "./Settings";
 import MisiaCorner from "./MisiaCorner";
+import ItemShop from "./ItemShop";
+import Inventory from "./Inventory";
 
 const getEncryptedScore = () => {
   const saved = localStorage.getItem("score");
@@ -84,6 +88,13 @@ const getEncryptedBoosts = () => {
   return Array.isArray(decrypted) ? decrypted : [];
 };
 
+const getEncryptedItems = () => {
+  const saved = localStorage.getItem("items");
+  if (!saved) return [];
+  const decrypted = decryptData(saved, []);
+  return Array.isArray(decrypted) ? decrypted : [];
+};
+
 export const getXpThresholdForLevel = (lvl) => {
   if (lvl <= 1) return 0;
 
@@ -136,6 +147,9 @@ function Clicker() {
   const [showMisiaCorner, setShowMisiaCorner] = useState(false);
   const [boosts, setBoosts] = useState(() => getEncryptedBoosts());
   const [timeTicker, setTimeTicker] = useState(Date.now());
+  const [showItemShop, setShowItemShop] = useState(false);
+  const [items, setItems] = useState(() => getEncryptedItems());
+  const [showInventory, setShowInventory] = useState(false);
 
   const saveTimeoutRef = useRef(null);
   const scoreRef = useRef(score);
@@ -156,7 +170,23 @@ function Clicker() {
     return () => clearInterval(timer);
   }, []);
 
-  const CURRENT_VERSION = "BETA 1.5.67";
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+
+      e.returnValue =
+        "Czy na pewno chcesz wyjść? Twój postęp z ostatniej sekundy może się nie zapisać!";
+      return e.returnValue;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  const CURRENT_VERSION = "BETA 1.6.0";
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -209,8 +239,16 @@ function Clicker() {
     if (upgrades.includes("upg_crit_chance_2")) critChance += 0.15;
 
     const misiaBoost = boosts?.find((b) => b.id === "misia_boost");
+    const clickBoost = boosts?.find((b) => b.type === "click_multiplier");
+    const xpBoost = boosts?.find((b) => b.type === "xp_multiplier");
+    const critBoost = boosts?.find((b) => b.type === "crit_addition");
 
     if (misiaBoost && misiaBoost.endTime > Date.now()) addition *= 3;
+    if (clickBoost && clickBoost.endTime > Date.now())
+      addition *= clickBoost.value;
+    if (xpBoost && xpBoost.endTime > Date.now()) xpAddition *= xpBoost.value;
+    if (critBoost && critBoost.endTime > Date.now())
+      critChance += critBoost.value;
 
     if (rebirths >= 1) addition *= 2;
     if (rebirths >= 2) critChance += 0.1;
@@ -407,6 +445,9 @@ function Clicker() {
           setScore={setScore}
           setUpgrades={setUpgrades}
           setXp={setXp}
+          setLevel={setLevel}
+          setBoosts={setBoosts}
+          setItems={setItems}
           encryptData={encryptData}
         />
       )}
@@ -422,6 +463,7 @@ function Clicker() {
           setSettings={setSettings}
         />
       )}
+
       {showMisiaCorner && (
         <MisiaCorner
           setScore={setScore}
@@ -433,10 +475,38 @@ function Clicker() {
         />
       )}
 
+      {showItemShop && (
+        <ItemShop
+          setShowItemShop={setShowItemShop}
+          items={items}
+          setItems={setItems}
+          encryptData={encryptData}
+          score={score}
+          setScore={setScore}
+          boosts={boosts}
+          setBoosts={setBoosts}
+        />
+      )}
+
+      {showInventory && (
+        <Inventory
+          setShowInventory={setShowInventory}
+          items={items}
+          setItems={setItems}
+          encryptData={encryptData}
+          boosts={boosts}
+          setBoosts={setBoosts}
+        />
+      )}
+
       <div className="main-container">
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
-          <p className="added-things">+ MISIA CORNER :33333</p>
+          <p className="added-things">+ Sklep z przedmiotami</p>
+          <p className="added-things">+ Ekwipunek</p>
+          <p className="added-things">+ Podstawowe mikstury</p>
+          <p className="added-things">+ Leciutenkie popraweczki graficzne</p>
+          <p className="added-things">+ Leciutenkie popraweczki dotyczące rebirthu</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
@@ -444,6 +514,12 @@ function Clicker() {
         <div className="side-bar">
           <button onClick={() => setShowShop(true)} title="sklep">
             <ShopIcon className="side-bar-icon" />
+          </button>
+          <button
+            onClick={() => setShowItemShop(true)}
+            title="sklep z przedmiotami"
+          >
+            <ItemShopIcon className="side-bar-icon orange" />
           </button>
           <button onClick={() => setShowSkins(true)} title="skiny">
             <ShirtIcon className="side-bar-icon red" />
@@ -463,6 +539,9 @@ function Clicker() {
               className="side-bar-icon lightblue"
               alt=""
             />
+          </button>
+          <button onClick={() => setShowInventory(true)} title="ekwipunek">
+            <BackpackIcon className="side-bar-icon pink" />
           </button>
         </div>
         <div className="tosia-img">
@@ -492,12 +571,13 @@ function Clicker() {
             </span>
           ))}
         <div className="score-label">
-          <span className="score">{score}</span>
+          <span className="score">{score.toLocaleString("pl-PL")}</span>
         </div>
         {showLevelBar && <LevelBar level={level} xp={xp} />}
         <div className="boosts-wrapper">
           {boosts
             ?.filter((boost) => boost.endTime > Date.now())
+            .slice(0, 3)
             .map((boost, i) => {
               const msLeft = boost.endTime - Date.now();
               const totalSeconds = Math.max(0, Math.floor(msLeft / 1000));
@@ -515,6 +595,9 @@ function Clicker() {
                 </div>
               );
             })}
+          {boosts?.filter((boost) => boost.endTime > Date.now()).length > 3 && (
+            <span className="more-boosts">{boosts?.length - 3} więcej</span>
+          )}
         </div>
         <div className="misia-corner-wrapper">
           <img

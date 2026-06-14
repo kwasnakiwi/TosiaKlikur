@@ -3,6 +3,7 @@ import misiaSpi from "./../assets/imgs/misia_spi.webp";
 import misiaSpiPetPet from "./../assets/imgs/misia_spi_pet_pet.gif";
 import misiaNieSpiPetPet from "./../assets/imgs/misia_nie_spi_pat_pat.gif";
 import misiaNieSpi from "./../assets/imgs/misia_nie_spi.webp";
+import pawIcon from "./../assets/imgs/paw-solid.svg";
 import { useState, useEffect } from "react";
 
 function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
@@ -35,7 +36,7 @@ function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
       name: "Szał Misi",
       endTime: endTime,
       cooldownEnd: cooldownEnd,
-      img: "/src/assets/imgs/paw-solid.svg",
+      img: pawIcon,
     };
 
     setBoosts((prev) => {
@@ -51,7 +52,7 @@ function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
 
     const timer = setTimeout(() => {
       setMisiaPet(false);
-    }, 1000);
+    }, 1300);
 
     const audio = new Audio(
       "https://us-tuna-sounds-files.voicemod.net/ba1fe939-a503-4774-8434-428b59658063-1760125636857.mp3",

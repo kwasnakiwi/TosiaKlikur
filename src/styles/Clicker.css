@@ -33,14 +33,16 @@
 }
 .side-bar {
   position: fixed;
-  right: 0;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   width: 100px;
-  height: 300px;
+  padding: 20px;
+  border-radius: 14px;
   background-color: var(--bg-secondary);
   display: flex;
   flex-direction: column;
+  row-gap: 10px;
   button {
     background-color: var(--accent-glow);
     border: none;
@@ -48,6 +50,7 @@
     cursor: pointer;
     transition: background-color 0.1s ease-out;
     position: relative;
+    border-radius: 4px;
     &:has(.blue) {
       background-color: rgb(136, 136, 240);
       &:hover {
@@ -72,6 +75,18 @@
         background-color: rgb(8, 172, 150);
       }
     }
+    &:has(.orange) {
+      background-color: rgb(243, 111, 34);
+      &:hover {
+        background-color: rgb(230, 127, 59);
+      }
+    }
+    &:has(.pink) {
+      background-color: rgb(243, 34, 208);
+      &:hover {
+        background-color: rgb(230, 59, 187);
+      }
+    }
     &:hover {
       background-color: var(--accent-hover2);
     }
@@ -89,13 +104,19 @@
   &.red {
     color: rgb(235, 198, 198);
   }
+  &.orange {
+    color: rgb(235, 172, 143);
+  }
+  &.pink {
+    color: rgb(235, 143, 235);
+  }
 }
 .auto-clicker-status {
   width: 10px;
   height: 10px;
   position: absolute;
   border-radius: 50%;
-  left: 20px;
+  left: 5px;
   top: 5px;
   &.active {
     background-color: green;
@@ -239,14 +260,14 @@
     opacity: 1;
   }
 }
-.boosts-wrapper{
+.boosts-wrapper {
   position: absolute;
   top: 10px;
   right: 10px;
 }
-.boost{
+.boost {
   background-color: var(--bg-main);
-  padding: 10px;
+  padding: 8px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
   display: flex;
@@ -254,25 +275,36 @@
   gap: 8px;
   width: 300px;
   color: var(--text-main);
-  img{
+  img {
     width: 30px;
     height: 30px;
-    object-fit: cover;
+    object-fit: contain;
     color: white;
     background-color: var(--text-main);
     padding: 5px;
     border-radius: 4px;
   }
 }
-.boost-info{
+.boost-info {
   display: flex;
   flex-direction: column;
-  .name{
+  .name {
     font-size: 14px;
     font-weight: 500;
   }
-  .time-left{
+  .time-left {
     font-size: 12px;
     font-weight: 300;
   }
+}
+.more-boosts{
+  background-color: var(--bg-main);
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  border-radius: 12px;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
 }
