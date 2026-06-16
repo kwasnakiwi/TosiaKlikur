@@ -81,23 +81,19 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
 
   const handleRangeSettingChange = (id, value) => {
     const exists = settings.some((sett) => sett.id === id);
+    const numericValue = parseFloat(value);
 
     let newSettings;
 
     if (exists) {
       newSettings = settings.map((sett) =>
-        sett.id === id ? { ...sett, value: value } : sett,
+        sett.id === id ? { ...sett, value: numericValue } : sett,
       );
     } else {
-      const defaultConfig = settingsConfig.find((c) => c.id === id);
-      newSettings = [
-        ...settings,
-        { id: id, value: !(defaultConfig?.value ?? true) },
-      ];
+      newSettings = [...settings, { id: id, value: numericValue }];
     }
 
     setSettings(newSettings);
-
     localStorage.setItem("settings", encryptData(newSettings));
   };
 
@@ -146,7 +142,9 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
                         handleRangeSettingChange(sett.id, e.target.value)
                       }
                     />
-                    <span className="setting-value">{Math.round(sett.value * 100)}%</span>
+                    <span className="setting-value">
+                      {Math.round(sett.value * 100)}%
+                    </span>
                   </div>
                 )}
               </div>
