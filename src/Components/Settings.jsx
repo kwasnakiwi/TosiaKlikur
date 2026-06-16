@@ -25,8 +25,7 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
       name: "Pokaż aktywne boosty",
       desc: "obiekty pokazujące aktywne boosty",
       value:
-        settings.find((sett) => sett.id === "sett_show_boosts")?.value ??
-        true,
+        settings.find((sett) => sett.id === "sett_show_boosts")?.value ?? true,
       type: "boolean",
     },
     {
@@ -38,6 +37,24 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
         true,
       type: "boolean",
     },
+    {
+      id: "sett_change_music_volume",
+      name: "Zmień głośność muzyki",
+      desc: "Dźwięki tła",
+      value:
+        settings.find((sett) => sett.id === "sett_change_music_volume")
+          ?.value ?? 0.5,
+      type: "range",
+    },
+    {
+      id: "sett_change_effects_volume",
+      name: "Zmień głośność efektów",
+      desc: "Dźwięki klikania, głaskanie misi itp.",
+      value:
+        settings.find((sett) => sett.id === "sett_change_effects_volume")
+          ?.value ?? 0.5,
+      type: "range",
+    },
   ];
 
   const handleCheckBoxSettingChange = (id) => {
@@ -48,6 +65,28 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
     if (exists) {
       newSettings = settings.map((sett) =>
         sett.id === id ? { ...sett, value: !sett.value } : sett,
+      );
+    } else {
+      const defaultConfig = settingsConfig.find((c) => c.id === id);
+      newSettings = [
+        ...settings,
+        { id: id, value: !(defaultConfig?.value ?? true) },
+      ];
+    }
+
+    setSettings(newSettings);
+
+    localStorage.setItem("settings", encryptData(newSettings));
+  };
+
+  const handleRangeSettingChange = (id, value) => {
+    const exists = settings.some((sett) => sett.id === id);
+
+    let newSettings;
+
+    if (exists) {
+      newSettings = settings.map((sett) =>
+        sett.id === id ? { ...sett, value: value } : sett,
       );
     } else {
       const defaultConfig = settingsConfig.find((c) => c.id === id);
@@ -90,6 +129,25 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
                     checked={isChecked}
                     onChange={() => handleCheckBoxSettingChange(sett.id)}
                   />
+                )}
+                {sett.type === "range" && (
+                  <div className="input-wrapper">
+                    <input
+                      type="range"
+                      name={sett.id}
+                      value={sett.value}
+                      max={1}
+                      min={0}
+                      step={0.01}
+                      style={{
+                        background: `linear-gradient(to right, var(--status-available) ${sett.value * 100}%, #3e3e3e ${sett.value * 100}%)`,
+                      }}
+                      onChange={(e) =>
+                        handleRangeSettingChange(sett.id, e.target.value)
+                      }
+                    />
+                    <span className="setting-value">{Math.round(sett.value * 100)}%</span>
+                  </div>
                 )}
               </div>
             </div>

@@ -23,7 +23,8 @@ import tosia6 from "./../assets/tosia_imgs/tosia6.webp";
 import tyrosia from "./../assets/tosia_imgs/tyrosia.webp";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.webp";
 import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.webp";
-import clickSound from "./../assets/sounds/click_sound.mp3";
+import tosiaMeow from "./../assets/sounds/tosia_meow.mp3";
+import letYouDown from "./../assets/sounds/Let You Down.mp3";
 import SettingsIcon from "./../assets/imgs/sett.svg";
 import Skins from "./Skins";
 import LevelBar from "./LevelBar";
@@ -154,6 +155,12 @@ function Clicker() {
   const xpRef = useRef(xp);
   const lastClickTime = useRef(0);
   const isMounted = useRef(false);
+  const effectsVolume = settings?.find(
+    (sett) => sett.id === "sett_change_effects_volume",
+  )?.value;
+  const musicVolume = settings?.find(
+    (sett) => sett.id === "sett_change_music_volume",
+  )?.value;
 
   useEffect(() => {
     scoreRef.current = score;
@@ -182,6 +189,22 @@ function Clicker() {
   }, [clickStreak]);
 
   useEffect(() => {
+    const backgroundSound = new Audio(letYouDown);
+
+    backgroundSound.loop = true;
+    backgroundSound.volume = parseFloat(musicVolume);
+
+    backgroundSound.play().catch((error) => {
+      "";
+    });
+
+    return () => {
+      backgroundSound.pause();
+      backgroundSound.currentTime = 0;
+    };
+  }, [settings]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
 
@@ -197,7 +220,7 @@ function Clicker() {
     };
   }, []);
 
-  const CURRENT_VERSION = "BETA 1.7.0";
+  const CURRENT_VERSION = "BETA 1.7.1";
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -327,12 +350,22 @@ function Clicker() {
           return prev + 1;
         });
 
-        const audio = new Audio("");
-        audio.volume = 0.5;
+        const audio = new Audio(tosiaMeow);
+        audio.volume = parseFloat(effectsVolume);
+
+        audio.currentTime = 1;
 
         audio.play().catch((error) => {
-          "";
+          console.log(
+            "Przeglądarka zablokowała audio przed interakcją:",
+            error,
+          );
         });
+
+        setTimeout(() => {
+          audio.pause();
+          audio.currentTime = 1;
+        }, 1000);
       }
 
       processScoreGain();
@@ -519,6 +552,7 @@ function Clicker() {
           avaiable={upgrades.includes("access_misia_corner")}
           boosts={boosts}
           setBoosts={setBoosts}
+          effectsVolume={effectsVolume}
         />
       )}
 
@@ -549,8 +583,14 @@ function Clicker() {
       <div className="main-container">
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
-          <p className="added-things">+ Seria kliknięcia</p>
-          <p className="added-things">+ Lekkie poprawki graficzne</p>
+          <p className="added-things">
+            + Dodana muzyka w tle <br />
+            (Dawid podsiadło - Let You Down) - Wybierał @Dawman
+          </p>
+          <p className="added-things">+ Dodane efekty dzwiękowe</p>
+          <p className="added-things">
+            + Dodane nowe ustawienia związane z dźwiękiem
+          </p>
         </div>
         <div className="title">
           <img src={title} alt="" />

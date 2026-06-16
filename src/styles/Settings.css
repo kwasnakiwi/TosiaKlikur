@@ -97,3 +97,98 @@
 .right input[type="checkbox"]:focus-visible {
   border: 1px solid var(--accent-color);
 }
+.right input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 150px;
+  height: 6px;
+  background: #3e3e3e;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.right input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+}
+
+.right input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: #3e3e3e;
+  border-radius: 4px;
+}
+
+.right input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--text-main);
+  margin-top: -6px;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.right input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--text-main);
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.right input[type="range"]:hover::-webkit-slider-thumb {
+  background-color: var(--status-available);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px var(--status-available-glow);
+}
+
+.right input[type="range"]:hover::-moz-range-thumb {
+  background-color: var(--status-available);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px var(--status-available-glow);
+}
+
+.right input[type="range"]:active {
+  background: #555555;
+}
+
+.right input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+  background-color: var(--status-available);
+}
+
+.right input[type="range"]:active::-moz-range-thumb {
+  transform: scale(1.25);
+  background-color: var(--status-available);
+}
+
+.right input[type="range"]:focus-visible {
+  border: 1px solid var(--accent-color);
+}
+.input-wrapper{
+  position: relative;
+}
+.setting-value{
+  position: absolute;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  left: 50%;
+  bottom: -10px;
+  transform: translateY(50%);
+  user-select: none;
+}

@@ -6,7 +6,7 @@ import misiaNieSpi from "./../assets/imgs/misia_nie_spi.webp";
 import pawIcon from "./../assets/imgs/paw-solid.svg";
 import { useState, useEffect } from "react";
 
-function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
+function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts, effectsVolume }) {
   const [timeTicker, setTimeTicker] = useState(Date.now());
   const [misiaPet, setMisiaPet] = useState(false);
 
@@ -57,7 +57,7 @@ function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
     const audio = new Audio(
       "https://us-tuna-sounds-files.voicemod.net/ba1fe939-a503-4774-8434-428b59658063-1760125636857.mp3",
     );
-    audio.volume = 0.5;
+    audio.volume = effectsVolume;
 
     audio.play().catch((error) => {
       console.log(
