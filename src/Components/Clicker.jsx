@@ -232,6 +232,7 @@ function Clicker() {
         const data = await response.json();
 
         if (data.version && data.version !== CURRENT_VERSION) {
+          localStorage.removeItem("settings");
           localStorage.setItem("game_version", data.version);
 
           window.location.reload(true);
