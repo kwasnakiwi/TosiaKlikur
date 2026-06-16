@@ -70,6 +70,9 @@ function Inventory({
         onClick={() => setShowInventory(false)}
       />
       <div className="shop inventory">
+        <header className="shop-header">
+          <h1 className="shop-title">Ekwipunek</h1>
+        </header>
         {items.map((item, i) => {
           return (
             <div key={i} className="shop-offer inv">

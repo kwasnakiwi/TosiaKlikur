@@ -130,6 +130,11 @@ function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
         onClick={() => setShowMisiaCorner(false)}
       />
       <div className="shop">
+        <header className="shop-header">
+          <h1 className="shop-title" style={{ textAlign: "center" }}>
+            Misia corner
+          </h1>
+        </header>
         <div className="mc-options">
           {misiaCornerConfig.map((opt, i) => (
             <div className="mc-option" key={i}>
@@ -157,7 +162,9 @@ function MisiaCorner({ setShowMisiaCorner, encryptData, boosts, setBoosts }) {
                   : misiaSpi
             }
             alt="Misia"
+            id="misia-target"
             className={isMisiaActiveNow ? "misia-awake-animation" : ""}
+            onClick={() => pet()}
           />
         </div>
       </div>

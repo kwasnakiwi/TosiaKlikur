@@ -20,6 +20,24 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
         true,
       type: "boolean",
     },
+    {
+      id: "sett_show_boosts",
+      name: "Pokaż aktywne boosty",
+      desc: "obiekty pokazujące aktywne boosty",
+      value:
+        settings.find((sett) => sett.id === "sett_show_boosts")?.value ??
+        true,
+      type: "boolean",
+    },
+    {
+      id: "sett_show_streak_bar",
+      name: "Pokaż serie klikania",
+      desc: "pasek pod tosią pokazujący twoją serie klikania :3",
+      value:
+        settings.find((sett) => sett.id === "sett_show_streak_bar")?.value ??
+        true,
+      type: "boolean",
+    },
   ];
 
   const handleCheckBoxSettingChange = (id) => {
@@ -41,7 +59,7 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
 
     setSettings(newSettings);
 
-    localStorage.setItem("settings", encryptData(JSON.stringify(newSettings)));
+    localStorage.setItem("settings", encryptData(newSettings));
   };
 
   return (
@@ -51,6 +69,9 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
         onClick={() => setShowSettings(false)}
       />
       <div className="shop">
+        <header className="shop-header">
+          <h1 className="shop-title">Ustawienia</h1>
+        </header>
         {settingsConfig.map((sett) => {
           let isChecked = false;
           if (sett.type === "boolean") isChecked = sett.value;

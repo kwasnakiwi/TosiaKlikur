@@ -27,7 +27,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) translateZ(0);
-  padding: 30px;
+  padding: 120px 30px 30px;
   background-color: var(--bg-panel);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
@@ -160,7 +160,7 @@
 }
 .balance {
   position: absolute;
-  top: 30px;
+  top: 0;
   right: 30px;
   font-size: 1.3rem;
   font-weight: 500;
@@ -169,4 +169,17 @@
     color: var(--status-available);
     font-weight: 600;
   }
+}
+.shop-header{
+  position: absolute;
+  width: calc(100% - 30px);
+  top: 30px;
+  left: 30px;
+}
+.shop-title{
+  color: var(--text-main);
+  font-size: 40px;
+  font-weight: 600;
+  margin: 0;
+  position: relative;
 }

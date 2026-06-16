@@ -16,13 +16,13 @@
   --status-available: #2ed573;
   --status-available-glow: rgba(46, 213, 115, 0.2);
 }
-.mc-options{
+.mc-options {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
 }
-.mc-option{
+.mc-option {
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -32,17 +32,17 @@
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 14px;
-  .name{
+  .name {
     font-size: 18px;
     font-weight: 600;
   }
-  .desc{
+  .desc {
     font-size: 14px;
     font-weight: 300;
     margin: 10px 0;
     height: 40px;
   }
-  .func{
+  .func {
     background-color: var(--status-available);
     color: white;
     font-size: 12px;
@@ -50,20 +50,31 @@
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    &.not{
+    &.not {
       opacity: 0.5;
       pointer-events: none;
     }
   }
 }
-.mc-misia-display{
+.mc-misia-display {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 30px;
-  img{
+  img {
     width: 300px;
     height: 400px;
     object-fit: contain;
+  }
+}
+#misia-target {
+  cursor: grab;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  &:hover {
+    transform: scale(1.05);
+  }
+  &:active {
+    transform: scale(0.95);
+    cursor: grabbing;
   }
 }

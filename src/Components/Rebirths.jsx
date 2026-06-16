@@ -78,7 +78,7 @@ function Rebirths({
         className="shop-back-overlay"
         onClick={() => setShowRebirths(false)}
       />
-      <div className="shop">
+      <div className="shop" style={{padding: "30px"}}>
         <h1 className="rebirth-title">
           Rebirth <span>{rebirths + 1}</span>
         </h1>

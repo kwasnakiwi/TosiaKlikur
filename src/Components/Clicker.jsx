@@ -23,6 +23,7 @@ import tosia6 from "./../assets/tosia_imgs/tosia6.webp";
 import tyrosia from "./../assets/tosia_imgs/tyrosia.webp";
 import tosiaRozbierajSie from "./../assets/tosia_imgs/tosia_rozbieraj_sie.webp";
 import tosiaMisia from "./../assets/tosia_imgs/tosia-misia.webp";
+import clickSound from "./../assets/sounds/click_sound.mp3";
 import SettingsIcon from "./../assets/imgs/sett.svg";
 import Skins from "./Skins";
 import LevelBar from "./LevelBar";
@@ -74,11 +75,8 @@ const getEncryptedXp = () => {
 const getEncryptedSettings = () => {
   const saved = localStorage.getItem("settings");
   if (!saved) return [];
-  try {
-    return JSON.parse(saved);
-  } catch (e) {
-    return [];
-  }
+  const decrypted = decryptData(saved, []);
+  return Array.isArray(decrypted) ? decrypted : [];
 };
 
 const getEncryptedBoosts = () => {
@@ -98,8 +96,8 @@ const getEncryptedItems = () => {
 export const getXpThresholdForLevel = (lvl) => {
   if (lvl <= 1) return 0;
 
-  const START_XP = 150;
-  const MULTIPLIER = 1.15;
+  const START_XP = 80;
+  const MULTIPLIER = 1.1;
 
   let totalXpRequired = 0;
   let currentLevelRequirement = START_XP;
@@ -113,8 +111,6 @@ export const getXpThresholdForLevel = (lvl) => {
 };
 
 const calculateLevelFromXp = (currentXp) => {
-  if (currentXp >= 1000000) return 100;
-
   let lvl = 1;
   while (lvl < 100 && currentXp >= getXpThresholdForLevel(lvl + 1)) {
     lvl++;
@@ -150,6 +146,8 @@ function Clicker() {
   const [showItemShop, setShowItemShop] = useState(false);
   const [items, setItems] = useState(() => getEncryptedItems());
   const [showInventory, setShowInventory] = useState(false);
+  const [clickStreak, setClickStreak] = useState(0);
+  const [maxClickStreak, setMaxClickStreak] = useState(600); // +150 = +1
 
   const saveTimeoutRef = useRef(null);
   const scoreRef = useRef(score);
@@ -171,6 +169,19 @@ function Clicker() {
   }, []);
 
   useEffect(() => {
+    if (clickStreak === 0) return;
+
+    const checkStreak = setInterval(() => {
+      const now = Date.now();
+      if (now - lastClickTime.current >= 2500) {
+        setClickStreak(0);
+      }
+    }, 100);
+
+    return () => clearInterval(checkStreak);
+  }, [clickStreak]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
 
@@ -186,7 +197,7 @@ function Clicker() {
     };
   }, []);
 
-  const CURRENT_VERSION = "BETA 1.6.0";
+  const CURRENT_VERSION = "BETA 1.7.0";
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -197,6 +208,7 @@ function Clicker() {
         const data = await response.json();
 
         if (data.version && data.version !== CURRENT_VERSION) {
+          localStorage.removeItem("score");
           localStorage.setItem("game_version", data.version);
 
           window.location.reload(true);
@@ -226,6 +238,7 @@ function Clicker() {
     let isCrit = false;
     let critChance = 0;
     let xpAddition = 1;
+    let clickStreakMultiplier = 1;
 
     if (upgrades.includes("upg_click_1")) addition += 1;
     if (upgrades.includes("upg_click_2")) addition += 2;
@@ -250,6 +263,12 @@ function Clicker() {
     if (critBoost && critBoost.endTime > Date.now())
       critChance += critBoost.value;
 
+    for (let i = 15; i <= maxClickStreak; i += 15) {
+      if (clickStreak >= i) clickStreakMultiplier += 0.1;
+    }
+    addition *= clickStreakMultiplier;
+    xpAddition *= clickStreakMultiplier;
+
     if (rebirths >= 1) addition *= 2;
     if (rebirths >= 2) critChance += 0.1;
 
@@ -259,8 +278,11 @@ function Clicker() {
       xpAddition *= 5;
     }
 
+    addition = Math.round(addition);
+    xpAddition = Math.round(xpAddition);
+
     return { addition, isCrit, xpAddition };
-  }, [upgrades, rebirths, boosts]);
+  }, [upgrades, rebirths, boosts, clickStreak]);
 
   const processScoreGain = useCallback(() => {
     const currentAdditionData = getClickAddition();
@@ -293,13 +315,31 @@ function Clicker() {
     queueSaveToLocalStorage();
   }, [getClickAddition, queueSaveToLocalStorage]);
 
-  const addToScore = useCallback(() => {
-    const now = Date.now();
-    if (now - lastClickTime.current < 50) return;
-    lastClickTime.current = now;
+  const addToScore = useCallback(
+    (isManual = false) => {
+      const now = Date.now();
 
-    processScoreGain();
-  }, [processScoreGain]);
+      if (now - lastClickTime.current < 50) return;
+      lastClickTime.current = now;
+
+      if (isManual) {
+        setClickStreak((prev) => {
+          if (prev >= maxClickStreak) return prev;
+          return prev + 1;
+        });
+
+        const audio = new Audio("");
+        audio.volume = 0.5;
+
+        audio.play().catch((error) => {
+          "";
+        });
+      }
+
+      processScoreGain();
+    },
+    [processScoreGain],
+  );
 
   useEffect(() => {
     const hasAuto1 = upgrades.includes("auto_clicker_1");
@@ -411,6 +451,13 @@ function Clicker() {
     true;
   const showLevelBar =
     settings.find((sett) => sett.id === "sett_show_level_bar")?.value ?? true;
+  const showBoosts =
+    settings.find((sett) => sett.id === "sett_show_boosts")?.value ?? true;
+  const showClickStreakBar =
+    settings.find((sett) => sett.id === "sett_show_streak_bar")?.value ?? true;
+
+  const currentBonusMultiplier = 1 + Math.floor(clickStreak / 15) * 0.1;
+  const maxBonusMultiplier = 1 + Math.floor(maxClickStreak / 15) * 0.1;
 
   return (
     <>
@@ -461,6 +508,7 @@ function Clicker() {
           setShowSettings={setShowSettings}
           settings={settings}
           setSettings={setSettings}
+          encryptData={encryptData}
         />
       )}
 
@@ -502,11 +550,8 @@ function Clicker() {
       <div className="main-container">
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
-          <p className="added-things">+ Sklep z przedmiotami</p>
-          <p className="added-things">+ Ekwipunek</p>
-          <p className="added-things">+ Podstawowe mikstury</p>
-          <p className="added-things">+ Leciutenkie popraweczki graficzne</p>
-          <p className="added-things">+ Leciutenkie popraweczki dotyczące rebirthu</p>
+          <p className="added-things">+ Seria kliknięcia</p>
+          <p className="added-things">+ Lekkie poprawki graficzne</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
@@ -547,10 +592,28 @@ function Clicker() {
         <div className="tosia-img">
           <img
             className={!showClickEffects ? "tosia-img__no-effects" : ""}
-            onClick={addToScore}
+            onClick={() => addToScore(true)}
             src={tosia}
             alt=""
           />
+          {showClickStreakBar && (
+            <div className="click-streak-wrapper">
+              <span className="click-streak-bonus">
+                x{currentBonusMultiplier.toFixed(1)}
+              </span>
+              <div className="click-streak-bar">
+                <div
+                  className="click-streak-progress"
+                  style={{
+                    maxWidth: `${(clickStreak / maxClickStreak) * 100}%`,
+                  }}
+                />
+              </div>
+              <span className="click-streak-bonus">
+                x{maxBonusMultiplier.toFixed(1)}
+              </span>
+            </div>
+          )}
         </div>
         {showClickEffects &&
           floatingTexts.map((text) => (
@@ -574,31 +637,34 @@ function Clicker() {
           <span className="score">{score.toLocaleString("pl-PL")}</span>
         </div>
         {showLevelBar && <LevelBar level={level} xp={xp} />}
-        <div className="boosts-wrapper">
-          {boosts
-            ?.filter((boost) => boost.endTime > Date.now())
-            .slice(0, 3)
-            .map((boost, i) => {
-              const msLeft = boost.endTime - Date.now();
-              const totalSeconds = Math.max(0, Math.floor(msLeft / 1000));
-              const minutes = Math.floor(totalSeconds / 60);
-              const seconds = totalSeconds % 60;
-              const formattedTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        {showBoosts && (
+          <div className="boosts-wrapper">
+            {boosts
+              ?.filter((boost) => boost.endTime > Date.now())
+              .slice(0, 3)
+              .map((boost, i) => {
+                const msLeft = boost.endTime - Date.now();
+                const totalSeconds = Math.max(0, Math.floor(msLeft / 1000));
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const formattedTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 
-              return (
-                <div className="boost" key={boost.id || i}>
-                  <img src={boost.img} alt="" />
-                  <div className="boost-info">
-                    <span className="name">{boost.name}</span>
-                    <span className="time-left">{formattedTime}</span>
+                return (
+                  <div className="boost" key={boost.id || i}>
+                    <img src={boost.img} alt="" />
+                    <div className="boost-info">
+                      <span className="name">{boost.name}</span>
+                      <span className="time-left">{formattedTime}</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          {boosts?.filter((boost) => boost.endTime > Date.now()).length > 3 && (
-            <span className="more-boosts">{boosts?.length - 3} więcej</span>
-          )}
-        </div>
+                );
+              })}
+            {boosts?.filter((boost) => boost.endTime > Date.now()).length >
+              3 && (
+              <span className="more-boosts">{boosts?.length - 3} więcej</span>
+            )}
+          </div>
+        )}
         <div className="misia-corner-wrapper">
           <img
             className={!hasAccessToMisiaCorner ? "disabled" : ""}

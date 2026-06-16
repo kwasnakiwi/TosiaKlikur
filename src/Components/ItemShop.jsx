@@ -145,9 +145,12 @@ function ItemShop({
         onClick={() => setShowItemShop(false)}
       />
       <div className="shop">
-        <span className="balance">
-          Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
-        </span>
+        <header className="shop-header">
+          <h1 className="shop-title">Sklep z przedmiotami</h1>
+          <span className="balance">
+            Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
+          </span>
+        </header>
         {shopData.map((row, i) => (
           <div key={i} className="shop-row">
             <h2 className="shop-row-title">{row.name}</h2>

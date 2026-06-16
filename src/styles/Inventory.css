@@ -30,11 +30,12 @@
 }
 
 .shop.inventory {
+  max-width: 1600px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 400px));
   grid-auto-rows: 330px;
   gap: 20px;
-  padding: 20px;
+  padding: 110px 20px 20px;
   min-height: 75vh;
   box-sizing: border-box;
 

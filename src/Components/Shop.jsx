@@ -102,7 +102,7 @@ function Shop({
       offers: [
         {
           id: "access_misia_corner",
-          name: "Karnet do \"Misia corner\"",
+          name: 'Karnet do "Misia corner"',
           desc: "Zyskaj ekskluzywne prawo wejścia do strefy Misia corner!",
           basePrice: 100000,
         },
@@ -143,9 +143,12 @@ function Shop({
     <>
       <div className="shop-back-overlay" onClick={() => setShowShop(false)} />
       <div className="shop">
-        <span className="balance">
-          Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
-        </span>
+        <header className="shop-header">
+          <h1 className="shop-title">Sklep</h1>
+          <span className="balance">
+            Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
+          </span>
+        </header>
         {error && (
           <div
             className="shop-error-msg"
