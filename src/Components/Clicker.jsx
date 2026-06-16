@@ -155,12 +155,13 @@ function Clicker() {
   const xpRef = useRef(xp);
   const lastClickTime = useRef(0);
   const isMounted = useRef(false);
-  const effectsVolume = settings?.find(
-    (sett) => sett.id === "sett_change_effects_volume",
-  )?.value;
-  const musicVolume = settings?.find(
-    (sett) => sett.id === "sett_change_music_volume",
-  )?.value;
+  const effectsVolume =
+    settings?.find((sett) => sett.id === "sett_change_effects_volume")?.value ??
+    0.5;
+
+  const musicVolume =
+    settings?.find((sett) => sett.id === "sett_change_music_volume")?.value ??
+    0.5;
 
   useEffect(() => {
     scoreRef.current = score;
