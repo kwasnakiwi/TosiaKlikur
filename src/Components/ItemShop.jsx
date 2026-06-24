@@ -3,6 +3,10 @@ import coins from "./../assets/imgs/coins-solid.svg";
 import clickPotion from "./../assets/imgs/click_potion.svg";
 import xpPotion from "./../assets/imgs/xp_potion.svg";
 import critPotion from "./../assets/imgs/crit_potion.svg";
+import totemOfMendol from "./../assets/imgs/mendol_totem_prawidlowy.png";
+import catEars from "./../assets/imgs/kocie_uszka2.png";
+import tokens from "./../assets/imgs/zetony.png";
+import israelFlag from "./../assets/imgs/flaga_izraela.png"
 import { useState } from "react";
 
 function ItemShop({
@@ -71,6 +75,44 @@ function ItemShop({
         },
       ],
     },
+    {
+      name: "Osobliwości św. Mendola",
+      desc: "Unikalne artefakty i magiczne przedmioty dla Tosi.",
+      offers: [
+        {
+          id: "totem_of_mendol",
+          name: "Totem Mendola",
+          desc: "Daje szansę na nawiedzenie ekranu przez samego św. Mendola, co przynosi potężny, nagły zysk.",
+          basePrice: 35000,
+          img: totemOfMendol,
+          type: "static",
+        },
+        {
+          id: "cat_ears",
+          name: "Kocie Uszy",
+          desc: "Tosia zakłada urocze uszka, zyskując permanentne +0.005% szansy na drop przedmiotu z klikania.",
+          basePrice: 25000,
+          img: catEars,
+          type: "static",
+        },
+        {
+          id: "poker_tokens",
+          name: "Żetony Hazardzisty",
+          desc: "5% szansy na zakład przy kliknięciu: zgarniasz wielki Jackpot x50 albo tracisz zysk z tego kliku.",
+          basePrice: 40000,
+          img: tokens,
+          type: "static",
+        },
+        {
+          id: "israel_flag",
+          name: "Flaga Izraela",
+          desc: "Wszytskie twoje kliknięcia idą w podatkach do wielkiego bena",
+          basePrice: 6700,
+          img: israelFlag,
+          type: "static",
+        },
+      ],
+    },
   ];
 
   const formatTime = (ms) => {
@@ -98,6 +140,14 @@ function ItemShop({
       return;
     }
 
+    if (
+      offer.type === "static" &&
+      items.find((i) => i.id === offer.id)?.amount >= 1
+    ) {
+      setError(`Posiadasz już przedmiot: ${offer.name}.`);
+      return;
+    }
+
     setScore((prev) => {
       const newScore = prev - offer.basePrice;
       localStorage.setItem("score", encryptData(newScore));
@@ -108,16 +158,19 @@ function ItemShop({
       const existingItem = prev.find((item) => item.id === offer.id);
       let newItems;
 
-      if (existingItem) {
+      if (existingItem && existingItem.type === "consumable") {
         newItems = prev.map((item) =>
           item.id === offer.id ? { ...item, amount: item.amount + 1 } : item,
         );
       } else {
-        const endTime = Date.now() + offer.duration;
-        const newItemBoost = {
-          ...offer.boost,
-          endTime: endTime,
-        };
+        let newItemBoost;
+        if (offer.type === "consumable") {
+          const endTime = Date.now() + offer.duration;
+          newItemBoost = {
+            ...offer.boost,
+            endTime: endTime,
+          };
+        }
 
         const newItem = {
           id: offer.id,
@@ -166,18 +219,22 @@ function ItemShop({
                     />
                     <h3 className="shop-offer-name">{offer.name}</h3>
                     <p className="shop-offer-desc">{offer.desc}</p>
-                    <span
-                      className="shop-offer-price"
-                      style={{ color: "cornflowerblue", marginBottom: "5px" }}
-                    >
-                      Czas trwania: {formatTime(offer.duration)}
-                    </span>
+                    {offer.type !== "static" && (
+                      <span
+                        className="shop-offer-price"
+                        style={{ color: "cornflowerblue", marginBottom: "5px" }}
+                      >
+                        Czas trwania: {formatTime(offer.duration)}
+                      </span>
+                    )}
                     {items.find((item) => item.id === offer.id)?.amount && (
                       <span
                         className="shop-offer-price"
                         style={{ color: "cornflowerblue", marginBottom: "5px" }}
                       >
-                        {items.find((item) => item.id === offer.id)?.amount}
+                        {items.find((item) => item.id === offer.id)?.amount &&
+                          "Masz: " +
+                            items.find((item) => item.id === offer.id)?.amount}
                       </span>
                     )}
                     <span className="shop-offer-price">

@@ -86,6 +86,7 @@
   min-height: 140px;
   will-change: transform;
   transform: translateZ(0);
+  position: relative;
 }
 
 .shop-offer-name {
@@ -170,16 +171,40 @@
     font-weight: 600;
   }
 }
-.shop-header{
+.crystals-balance {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  gap: 8px;
+  > span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: rgb(154, 224, 236);
+    img {
+      width: 20px;
+    }
+  }
+}
+.shop-header {
   position: absolute;
   width: calc(100% - 30px);
   top: 30px;
   left: 30px;
 }
-.shop-title{
+.shop-title {
   color: var(--text-main);
   font-size: 40px;
   font-weight: 600;
   margin: 0;
   position: relative;
+}
+.multiplier {
+  position: absolute;
+  bottom: 55px;
+  right: 5px;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 14px;
 }

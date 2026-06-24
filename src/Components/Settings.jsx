@@ -55,6 +55,14 @@ function Settings({ setShowSettings, settings, setSettings, encryptData }) {
           ?.value ?? 0.5,
       type: "range",
     },
+    {
+      id: "sett_show_tosia_items",
+      name: "Pokaż itemy na Tosii",
+      desc: "Itemy z plecaka które są pokazywane bezpośrednio na Tosii",
+      value:
+        settings.find((sett) => sett.id === "sett_show_tosia_items")?.value ?? true,
+      type: "boolean",
+    },
   ];
 
   const handleCheckBoxSettingChange = (id) => {

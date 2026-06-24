@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./../styles/Shop.css";
+import misiax from "./../assets/imgs/misiax.png";
 
 function Shop({
   setShowShop,
@@ -7,6 +8,10 @@ function Shop({
   setUpgrades,
   score,
   setScore,
+  crystals,
+  setCrystals,
+  permUpgrades,
+  setPermUpgrades,
   encryptData,
 }) {
   const [error, setError] = useState(null);
@@ -108,10 +113,67 @@ function Shop({
         },
       ],
     },
+    {
+      name: "Oferty nieskończone",
+      desc: "Dzięki rebirthom zdobywaj Misiaxy i odblokowuj ulepszenia na stałe (te upgrady nie znikają po rebirthie!)",
+      currency: "Misiax",
+      offers: [
+        {
+          id: "perm_click_mult",
+          name: "Mnożnik kliknięć",
+          desc: "Każdy poziom dodaje +0.05x do globalnego mnożnika punktów z kliknięcia.",
+          basePrice: 1,
+          costFormula: (lvl) => Math.round(1 + lvl * 1.5),
+          bonusPerLevel: 0.05,
+          type: "chain",
+          nonRebirthable: true,
+        },
+        {
+          id: "perm_xp_mult",
+          name: "Mnożnik XPa",
+          desc: "Każdy poziom dodaje +0.05x do globalnego mnożnika punktów doświadczenia (XP).",
+          basePrice: 1,
+          costFormula: (lvl) => Math.round(1 + lvl * 1.5),
+          bonusPerLevel: 0.05,
+          type: "chain",
+          nonRebirthable: true,
+        },
+      ],
+    },
   ];
+
+  const clickLvl = permUpgrades?.perm_click_mult || 0;
+  const xpLvl = permUpgrades?.perm_xp_mult || 0;
+
+  const permClickMult = 1 + clickLvl * 0.05;
+  const permXpMult = 1 + xpLvl * 0.05;
 
   const buyItem = (offer) => {
     if (!offer) return;
+
+    if (offer.type === "chain") {
+      const currentLevel = permUpgrades[offer.id] || 0;
+      const currentPrice = offer.costFormula(currentLevel);
+
+      if (crystals >= currentPrice) {
+        setCrystals((prev) => {
+          const newCrystals = prev - currentPrice;
+          localStorage.setItem("crystals", encryptData(newCrystals));
+          return newCrystals;
+        });
+
+        setPermUpgrades((prev) => {
+          const newPerm = { ...prev, [offer.id]: currentLevel + 1 };
+          localStorage.setItem("perm_upgrades", encryptData(newPerm));
+          return newPerm;
+        });
+
+        setError(null);
+      } else {
+        setError("Masz za mało Misiaxów!");
+      }
+      return;
+    }
 
     if (score >= offer.basePrice) {
       setScore((prev) => {
@@ -122,10 +184,7 @@ function Shop({
 
       setUpgrades((prev) => {
         const newUpgrades = [...prev, offer.id];
-        localStorage.setItem(
-          "upgrades",
-          encryptData(JSON.stringify(newUpgrades)),
-        );
+        localStorage.setItem("upgrades", encryptData(newUpgrades));
         return newUpgrades;
       });
 
@@ -139,16 +198,51 @@ function Shop({
     }
   };
 
+  const getCurrencyLabel = (amount, currencyType) => {
+    if (currencyType !== "Misiax") return "kliknięć";
+
+    if (amount === 1) return "Misiax";
+
+    const lastDigit = amount % 10;
+    const lastTwoDigits = amount % 100;
+
+    if (
+      lastDigit >= 2 &&
+      lastDigit <= 4 &&
+      (lastTwoDigits < 10 || lastTwoDigits >= 20)
+    ) {
+      return "Misiaxy";
+    }
+
+    return "Misiaxów";
+  };
+
   return (
     <>
       <div className="shop-back-overlay" onClick={() => setShowShop(false)} />
       <div className="shop">
         <header className="shop-header">
           <h1 className="shop-title">Sklep</h1>
-          <span className="balance">
-            Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
-          </span>
+          <div
+            className="balances-wrapper"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <span className="balance">
+              Stan konta: <span>{score.toLocaleString("pl-PL")} kliknięć</span>
+            </span>
+            <span
+              className="balance crystals-balance"
+              style={{ color: "#a855f7" }}
+            >
+              Misiaxy:{" "}
+              <span>
+                {(crystals || 0).toLocaleString("pl-PL")}{" "}
+                <img src={misiax} alt="" />
+              </span>
+            </span>
+          </div>
         </header>
+
         {error && (
           <div
             className="shop-error-msg"
@@ -157,30 +251,47 @@ function Shop({
             {error}
           </div>
         )}
+
         {shopData.map((row, i) => (
           <div key={i} className="shop-row">
             <h2 className="shop-row-title">{row.name}</h2>
             <p className="shop-row-desc">{row.desc}</p>
             <div className="shop-row-offers">
-              {row.offers.map((offer, i) => {
-                const isBought = upgrades.includes(offer.id);
+              {row.offers.map((offer, idx) => {
+                const isChain = offer.type === "chain";
+                const currentLevel = isChain ? permUpgrades[offer.id] || 0 : 0;
+                const currentPrice = isChain
+                  ? offer.costFormula(currentLevel)
+                  : offer.basePrice;
+                const isBought = !isChain && upgrades.includes(offer.id);
 
                 return (
                   <div
-                    key={i}
-                    className={`shop-offer ${isBought ? "is-locked" : ""}`}
+                    key={idx}
+                    className={`shop-offer ${isBought ? "is-locked" : ""} ${isChain ? "chain-offer" : ""}`}
                   >
                     <h3 className="shop-offer-name">{offer.name}</h3>
                     <p className="shop-offer-desc">{offer.desc}</p>
                     <span className="shop-offer-price">
-                      {offer.basePrice.toLocaleString("pl-PL")} kliknięć
+                      <span className="shop-offer-price">
+                        {currentPrice.toLocaleString("pl-PL")}{" "}
+                        {getCurrencyLabel(currentPrice, row.currency)}
+                      </span>
                     </span>
                     <button
                       className={`shop-offer-button ${isBought ? "bought" : ""}`}
                       onClick={() => !isBought && buyItem(offer)}
                     >
-                      {isBought ? "Zakupiono" : "Kup"}
+                      {isChain ? "Ulepsz" : isBought ? "Zakupiono" : "Kup"}
                     </button>
+                    {isChain && (
+                      <span className="multiplier">
+                        x
+                        {offer.id === "perm_click_mult"
+                          ? permClickMult.toFixed(2)
+                          : permXpMult.toFixed(2)}
+                      </span>
+                    )}
                   </div>
                 );
               })}

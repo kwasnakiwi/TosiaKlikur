@@ -43,58 +43,118 @@
   display: flex;
   flex-direction: column;
   row-gap: 10px;
+
   button {
-    background-color: var(--accent-glow);
+    background-color: var(--accent-color);
     border: none;
     padding: 12px;
     cursor: pointer;
     transition: background-color 0.1s ease-out;
     position: relative;
     border-radius: 4px;
-    &:has(.blue) {
+
+    &:hover::after {
+      content: attr(categoryname);
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translateX(-101%);
+      height: calc(100% - 24px);
+      background-color: white;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 10px;
+      border-radius: 4px;
+      min-width: 200px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 2px solid var(--border-color);
+      opacity: 0;
+      animation: fadeShow 0.2s ease-out forwards;
+    }
+
+    &:not(:has(.orange, .red, .blue, .green, .lightblue, .pink)),
+    &:not(:has(.orange, .red, .blue, .green, .lightblue, .pink))::after {
+      &:hover,
+      &:hover::after {
+        background-color: var(--accent-hover);
+      }
+      &::after {
+        color: white;
+      }
+    }
+
+    &:has(.blue),
+    &:has(.blue)::after {
       background-color: rgb(136, 136, 240);
       &:hover {
         background-color: rgb(95, 95, 170);
       }
+      &::after {
+        color: rgb(14, 14, 192);
+      }
     }
-    &:has(.green) {
+
+    &:has(.green),
+    &:has(.green)::after {
       background-color: rgb(6, 83, 29);
       &:hover {
         background-color: rgb(11, 70, 14);
       }
+      &::after {
+        color: rgb(102, 204, 43);
+      }
     }
-    &:has(.red) {
+
+    &:has(.red),
+    &:has(.red)::after {
       background-color: rgb(129, 7, 7);
       &:hover {
         background-color: rgb(179, 15, 15);
       }
+      &::after {
+        color: rgb(235, 198, 198);
+      }
     }
-    &:has(.lightblue) {
+
+    &:has(.lightblue),
+    &:has(.lightblue)::after {
       background-color: rgb(34, 236, 243);
       &:hover {
         background-color: rgb(8, 172, 150);
       }
+      &::after {
+        color: white;
+      }
     }
-    &:has(.orange) {
+
+    &:has(.orange),
+    &:has(.orange)::after {
       background-color: rgb(243, 111, 34);
       &:hover {
         background-color: rgb(230, 127, 59);
       }
+      &::after {
+        color: rgb(235, 172, 143);
+      }
     }
-    &:has(.pink) {
+
+    &:has(.pink),
+    &:has(.pink)::after {
       background-color: rgb(243, 34, 208);
       &:hover {
         background-color: rgb(230, 59, 187);
       }
-    }
-    &:hover {
-      background-color: var(--accent-hover2);
+      &::after {
+        color: rgb(235, 143, 235);
+      }
     }
   }
 }
 .side-bar-icon {
   font-size: 25px;
-  color: var(--accent-color);
+  color: #ffffff;
   &.blue {
     color: rgb(14, 14, 192);
   }
@@ -132,7 +192,7 @@
   transform: translate(-50%, -50%);
   width: 100%;
   max-width: 500px;
-  img {
+  > img {
     width: 300px;
     height: 300px;
     object-fit: cover;
@@ -156,15 +216,30 @@
 .score-label {
   position: absolute;
   left: 50%;
-  bottom: 100px;
+  bottom: 40px;
   transform: translateX(-50%);
   padding: 20px;
   width: 100%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .score {
   color: var(--text-main);
   font-size: 60px;
+}
+.crystals {
+  font-size: 40px;
+  color: rgb(154, 224, 236);
+  margin-top: -20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+  > img {
+    width: 35px;
+  }
 }
 .floating-click-text {
   position: fixed;
@@ -178,6 +253,8 @@
   animation: floatUpAndFade 1s ease-out forwards;
   z-index: 1;
   will-change: transform, opacity;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes floatUpAndFade {
@@ -303,7 +380,7 @@
     font-weight: 300;
   }
 }
-.more-boosts{
+.more-boosts {
   background-color: var(--bg-main);
   padding: 5px;
   font-size: 14px;
@@ -315,7 +392,7 @@
   margin-left: auto;
 }
 
-.click-streak-wrapper{
+.click-streak-wrapper {
   position: absolute;
   bottom: -100px;
   left: 0;
@@ -331,7 +408,7 @@
   align-items: center;
   border: 1px solid var(--border-color);
 }
-.click-streak-bar{
+.click-streak-bar {
   width: 100%;
   background-color: var(--bg-card);
   height: 20px;
@@ -339,7 +416,7 @@
   border: 1px solid var(--border-color);
   position: relative;
 }
-.click-streak-progress{
+.click-streak-progress {
   position: absolute;
   width: 100%;
   height: 20px;
@@ -349,8 +426,160 @@
   border-radius: 18px;
   transition: all 0.1s ease-out;
 }
-.click-streak-bonus{
+.click-streak-bonus {
   font-size: 18px;
   color: var(--text-main);
   font-weight: 500;
+}
+.dropped-item {
+  position: absolute;
+  top: 50px;
+  right: -50px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  opacity: 0;
+  animation: floatUpAndFade 1s ease-out forwards;
+  img {
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    object-fit: contain;
+  }
+}
+.dropped-item-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+.mendol-animated {
+  position: absolute;
+  top: -50px;
+  right: 20px;
+  pointer-events: none;
+
+  img {
+    width: 200px;
+    height: 200px;
+    border-radius: 0;
+    object-fit: contain;
+    animation: monkeyJump 3s ease-in-out forwards;
+    opacity: 0;
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes monkeyJump {
+  /* 0% - 10%: Pojawia się na ziemi */
+  0% {
+    opacity: 0;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+
+  /* SKOK 1: Szybka spinka i wystrzał w górę z lekkim przechyłem */
+  14% {
+    transform: scale(1.1, 0.8) translateY(0) rotate(0deg);
+  } /* Skurcz przed skokiem */
+  22% {
+    transform: scale(0.9, 1.2) translateY(-70px) rotate(15deg);
+  } /* W górze, rozciągnięty w prawo */
+  28% {
+    transform: scale(1) translateY(0) rotate(0deg);
+  } /* Lądowanie */
+
+  /* SKOK 2: Natychmiastowe odbicie w drugą stronę */
+  32% {
+    transform: scale(1.1, 0.8) translateY(0);
+  }
+  40% {
+    transform: scale(0.9, 1.2) translateY(-90px) rotate(-15deg);
+  } /* Wyższy skok, przechył w lewo */
+  46% {
+    transform: scale(1.05, 0.95) translateY(0) rotate(0deg);
+  } /* Amortyzacja po wylądowaniu */
+  50% {
+    transform: scale(1) translateY(0);
+  }
+
+  /* Dziki taniec w miejscu (szybkie podrygiwanie lewo/prawo) */
+  55% {
+    transform: translateY(-10px) rotate(10deg);
+  }
+  60% {
+    transform: translateY(-10px) rotate(-10deg);
+  }
+  65% {
+    transform: translateY(-10px) rotate(10deg);
+  }
+  70% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  /* SKOK 3: Ostatni, wielki małpi wyskok */
+  74% {
+    transform: scale(1.2, 0.7) translateY(0);
+  }
+  82% {
+    transform: scale(0.8, 1.3) translateY(-110px) rotate(20deg);
+  } /* Maksymalna wysokość */
+  90% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+
+  /* 90% - 100%: Płynne znikanie po skończonym szałe */
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px) rotate(0deg);
+  }
+}
+
+.cat-ears-wrapper {
+  position: absolute;
+  top: -50px;
+  left: -10px;
+  width: 100%;
+  pointer-events: none;
+  img {
+    width: 100%;
+    height: 200px;
+  }
+}
+.totem-of-mendol-wrapper {
+  position: absolute;
+  pointer-events: none;
+  left: 100px;
+  rotate: -25deg;
+  bottom: 0;
+  img {
+    height: 150px;
+  }
+}
+
+.tokens-wrapper {
+  position: absolute;
+  pointer-events: none;
+  right: 100px;
+  bottom: 0;
+  img {
+    width: 70px;
+  }
+}
+.israel-wrapper {
+  position: absolute;
+  pointer-events: none;
+  right: 0;
+  bottom: 0;
+  img {
+    width: 100px;
+    height: 300px;
+  }
 }

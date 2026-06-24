@@ -55,12 +55,22 @@ function Inventory({
       setItems((prev) => {
         const updatedItems = prev
           .map((i) => (i.id === item.id ? { ...i, amount: i.amount - 1 } : i))
-          .filter((i) => i.amount > 0)
+          .filter((i) => i.amount > 0);
 
         localStorage.setItem("items", encryptData(updatedItems));
         return updatedItems;
       });
     }
+  };
+
+  const dropItem = (itemId) => {
+    if (!confirm("Czy napewno chcesz wyrzucić ten przedmiot?")) return;
+
+    setItems((prev) => {
+      const newItems = prev.filter((item) => item.id !== itemId);
+      localStorage.setItem("items", encryptData(newItems));
+      return newItems;
+    });
   };
 
   return (
@@ -79,12 +89,14 @@ function Inventory({
               <img className="shop-offer-img inv" src={item.img} alt="" />
               <h3 className="shop-offer-name">{item.name}</h3>
               <p className="shop-offer-desc">{item.desc}</p>
-              <span
-                className="shop-offer-price"
-                style={{ color: "cornflowerblue", marginBottom: "5px" }}
-              >
-                Czas trwania: {formatTime(item.duration)}
-              </span>
+              {item.type === "consumable" && (
+                <span
+                  className="shop-offer-price"
+                  style={{ color: "cornflowerblue", marginBottom: "5px" }}
+                >
+                  Czas trwania: {formatTime(item.duration)}
+                </span>
+              )}
               <span
                 className="shop-offer-price amount"
                 style={{ color: "cornflowerblue", marginBottom: "5px" }}
@@ -94,10 +106,10 @@ function Inventory({
               <button
                 className="shop-offer-button"
                 onClick={() =>
-                  item.type === "consumable" ? useItem(item) : ""
+                  item.type === "consumable" ? useItem(item) : dropItem(item.id)
                 }
               >
-                {item.type === "consumable" && "Użyj"}
+                {item.type === "consumable" ? "Użyj" : "Wyrzuć"}
               </button>
             </div>
           );
