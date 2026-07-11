@@ -70,7 +70,7 @@ function Rebirths({
       level: 90,
       labels: [
         { text: "1 000 000 kliknięć", isCompleted: score >= 1000000 },
-        { text: "80 level", isCompleted: level >= 90 },
+        { text: "90 level", isCompleted: level >= 90 },
       ],
     },
   ];
