@@ -65,58 +65,76 @@ function Rebirths({
         { text: "80 level", isCompleted: level >= 80 },
       ],
     },
+    {
+      clicks: 1000000,
+      level: 90,
+      labels: [
+        { text: "700 000 kliknięć", isCompleted: score >= 1000000 },
+        { text: "80 level", isCompleted: level >= 90 },
+      ],
+    },
   ];
 
   const rebirthRewards = [
     {
-      crystals: 1,
-      labels: ["1 misiax", "mnożnik x2 do kliknięć!"],
+      crystals: 15,
+      labels: ["15 misiaxów", "mnożnik x2 do kliknięć!"],
     },
     {
-      crystals: 3,
+      crystals: 30,
       labels: [
-        "3 misiaxy",
+        "30 misiaxów",
         "+10% szansy na krytyczne kliknięcie (wartość x5)",
         "+0.1% szansy na drop itemu z klikania",
       ],
     },
     {
-      crystals: 5,
+      crystals: 50,
       labels: [
-        "5 misiaxów",
+        "50 misiaxów",
         "mnożnik x2 do XPa!",
         "Maksymalna passa kliknięcia zwiększona do x5",
         "+0.1% szansy na drop itemu z klikania",
       ],
     },
     {
-      crystals: 10,
+      crystals: 75,
       labels: [
-        "10 misiaxów",
+        "75 misiaxów",
         "mnożnik x3 do kliknięć!",
         "Maksymalna passa kliknięcia zwiększona do x10",
         "+0.2% szansy na drop itemu z klikania",
       ],
     },
     {
-      crystals: 20,
+      crystals: 100,
       labels: [
-        "20 misiaxów",
+        "100 misiaxów",
         "mnożnik x3 do XPa!",
         "+1% szansy na super-krytyczne kliknięcie (wartość x25)",
         "+0.2% szansy na drop itemu z klikania",
         "+0.5% szansy na drop misiaxów poprostu z klikania!",
-
       ],
     },
     {
-      crystals: 40,
+      crystals: 150,
       labels: [
-        "40 misiaxów",
+        "150 misiaxów",
         "Maksymalna passa kliknięcia zwiększona do x15",
         "+2% szansy na super-krytyczne kliknięcie (wartość x25)",
         "+0.3% szansy na drop itemu z klikania",
         "+0.7% szansy na drop misiaxów poprostu z klikania!",
+      ],
+    },
+    {
+      crystals: 250,
+      labels: [
+        "250 misiaxów",
+        "Maksymalna passa kliknięcia zwiększona do x20",
+        "+3% szansy na super-krytyczne kliknięcie (wartość x25)",
+        "+0.5% szansy na drop itemu z klikania",
+        "+1% szansy na drop misiaxów poprostu z klikania!",
+        "+10% do każdego zysku do prestiżu?"
       ],
     },
   ];

@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import "./../styles/LevelBar.css";
 import { getXpThresholdForLevel } from "./Clicker";
+import { FaCircleInfo as Info } from "react-icons/fa6";
+import { createPortal } from "react-dom";
+import LevelInfo from "./LevelInfo";
 
 function LevelBar({ level, xp }) {
+  const [showInfo, setShowInfo] = useState(false);
+
   const currentLevelXpStart = getXpThresholdForLevel(level);
   const nextLevelXpStart = getXpThresholdForLevel(level + 1);
 
@@ -25,31 +30,39 @@ function LevelBar({ level, xp }) {
   }
 
   return (
-    <div className="level-bar-box">
-      <span className="next-level">{isMaxLevel ? "MAX" : level + 1}</span>
-      <div className="level-bar-back">
-        <div
-          className="level-bar-value"
+    <>
+      {showInfo &&
+        createPortal(
+          <LevelInfo setShowInfo={setShowInfo} currentLevel={level} />,
+          document.body,
+        )}
+      <div className="level-bar-box">
+        <Info onClick={() => setShowInfo(true)} className="info" />
+        <span className="next-level">{isMaxLevel ? "MAX" : level + 1}</span>
+        <div className="level-bar-back">
+          <div
+            className="level-bar-value"
+            style={{
+              height: `${progressPercent}%`,
+            }}
+          />
+        </div>
+        <span className="current-level">{level}</span>
+
+        <span
+          className="current-xp"
           style={{
-            height: `${progressPercent}%`, 
+            bottom: "25px",
           }}
-        />
+        >
+          {isMaxLevel ? "" : `${xpOnCurrentLevel}xp`}
+        </span>
+
+        <span className="required-xp">
+          {isMaxLevel ? "" : `${xpRequiredForNext}xp`}
+        </span>
       </div>
-      <span className="current-level">{level}</span>
-
-      <span
-        className="current-xp"
-        style={{
-          bottom: "25px",
-        }}
-      >
-        {isMaxLevel ? "" : `${xpOnCurrentLevel}xp`}
-      </span>
-
-      <span className="required-xp">
-        {isMaxLevel ? "" : `${xpRequiredForNext}xp`}
-      </span>
-    </div>
+    </>
   );
 }
 

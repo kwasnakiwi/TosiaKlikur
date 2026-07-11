@@ -121,9 +121,9 @@ function Shop({
         {
           id: "perm_click_mult",
           name: "Mnożnik kliknięć",
-          desc: "Każdy poziom dodaje +0.05x do globalnego mnożnika punktów z kliknięcia.",
+          desc: "Każdy poziom dodaje +0.1x do globalnego mnożnika punktów z kliknięcia.",
           basePrice: 1,
-          costFormula: (lvl) => Math.round(1 + lvl * 1.5),
+          costFormula: (lvl) => Math.round(1 + lvl * 2),
           bonusPerLevel: 0.05,
           type: "chain",
           nonRebirthable: true,
@@ -131,10 +131,10 @@ function Shop({
         {
           id: "perm_xp_mult",
           name: "Mnożnik XPa",
-          desc: "Każdy poziom dodaje +0.05x do globalnego mnożnika punktów doświadczenia (XP).",
+          desc: "Każdy poziom dodaje +0.1x do globalnego mnożnika punktów doświadczenia (XP).",
           basePrice: 1,
-          costFormula: (lvl) => Math.round(1 + lvl * 1.5),
-          bonusPerLevel: 0.05,
+          costFormula: (lvl) => Math.round(1 + lvl * 2),
+          bonusPerLevel: 0.1,
           type: "chain",
           nonRebirthable: true,
         },
@@ -145,8 +145,8 @@ function Shop({
   const clickLvl = permUpgrades?.perm_click_mult || 0;
   const xpLvl = permUpgrades?.perm_xp_mult || 0;
 
-  const permClickMult = 1 + clickLvl * 0.05;
-  const permXpMult = 1 + xpLvl * 0.05;
+  const permClickMult = 1 + clickLvl * 0.1;
+  const permXpMult = 1 + xpLvl * 0.1;
 
   const buyItem = (offer) => {
     if (!offer) return;
@@ -288,8 +288,8 @@ function Shop({
                       <span className="multiplier">
                         x
                         {offer.id === "perm_click_mult"
-                          ? permClickMult.toFixed(2)
-                          : permXpMult.toFixed(2)}
+                          ? permClickMult.toFixed(1)
+                          : permXpMult.toFixed(1)}
                       </span>
                     )}
                   </div>

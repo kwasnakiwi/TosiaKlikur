@@ -3,6 +3,8 @@ import coins from "./../assets/imgs/coins-solid.svg";
 import clickPotion from "./../assets/imgs/click_potion.svg";
 import xpPotion from "./../assets/imgs/xp_potion.svg";
 import critPotion from "./../assets/imgs/crit_potion.svg";
+import superCritPotion from "./../assets/imgs/super_crit_potion.svg";
+import dropChancePotion from "./../assets/imgs/drop_chance_potion.svg";
 import totemOfMendol from "./../assets/imgs/mendol_totem_prawidlowy.png";
 import catEars from "./../assets/imgs/kocie_uszka2.png";
 import tokens from "./../assets/imgs/zetony.png";
@@ -71,6 +73,38 @@ function ItemShop({
             img: critPotion,
             type: "crit_addition",
             value: 0.1,
+          },
+        },
+        {
+          id: "super_crit_potion_1",
+          name: "Mikstura Szansy Super-Krytycznej +1%",
+          desc: "Dodaje +1% szansy na super-krytyczne kliknięcie o wartości x25.",
+          basePrice: 15000,
+          duration: 5 * 60 * 1000,
+          img: superCritPotion,
+          type: "consumable",
+          boost: {
+            id: "super_crit_boost_1",
+            name: "Szansa Krytyczna (+1%)",
+            img: superCritPotion,
+            type: "super_crit_addition",
+            value: 0.01,
+          },
+        },
+        {
+          id: "drop_chance_potion_1",
+          name: "Mikstura Szansy Na Drop +0.3%",
+          desc: "Dodaje +0.3% na drop itemu z klikania",
+          basePrice: 17500,
+          duration: 5 * 60 * 1000,
+          img: dropChancePotion,
+          type: "consumable",
+          boost: {
+            id: "drop_chance_boost_1",
+            name: "Szansa Na Drop (+0.3%)",
+            img: dropChancePotion,
+            type: "drop_chance_addition",
+            value: 0.003,
           },
         },
       ],

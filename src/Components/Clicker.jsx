@@ -124,23 +124,19 @@ const getEncryptedPermUpgrades = () => {
 export const getXpThresholdForLevel = (lvl) => {
   if (lvl <= 1) return 0;
 
-  const START_XP = 50;
-  const MULTIPLIER = 1.1;
+  const BASE_XP = 50;
 
-  let totalXpRequired = 0;
-  let currentLevelRequirement = START_XP;
+  const SCALING_FACTOR = 2;
 
-  for (let i = 2; i <= lvl; i++) {
-    totalXpRequired += Math.round(currentLevelRequirement);
-    currentLevelRequirement *= MULTIPLIER;
-  }
+  const n = lvl - 1;
+  const totalXpRequired = BASE_XP * Math.pow(n, SCALING_FACTOR);
 
-  return totalXpRequired;
+  return Math.round(totalXpRequired);
 };
 
 const calculateLevelFromXp = (currentXp) => {
   let lvl = 1;
-  while (lvl < 100 && currentXp >= getXpThresholdForLevel(lvl + 1)) {
+  while (lvl < 250 && currentXp >= getXpThresholdForLevel(lvl + 1)) {
     lvl++;
   }
   return lvl;
@@ -165,7 +161,7 @@ function Clicker() {
     const initialXp = getEncryptedXp();
     return calculateLevelFromXp(initialXp);
   });
-  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [rewardPopup, setRewardPopup] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(() => getEncryptedSettings());
   const [showMisiaCorner, setShowMisiaCorner] = useState(false);
@@ -189,6 +185,69 @@ function Clicker() {
   const crystalsRef = useRef(crystals);
   const lastClickTime = useRef(0);
   const isMounted = useRef(false);
+
+  useEffect(() => {
+    // Flaga bezpieczeństwa - upewnia się, że rekompensata zostanie przyznana tylko raz
+    const MIGRATION_KEY = "beta_1_9_0_migration_done";
+    if (localStorage.getItem(MIGRATION_KEY)) return;
+
+    console.log("[MIGRACJA] Rozpoczynam naliczanie zaległych Misiaxów...");
+    let missingCrystals = 0;
+
+    const rebirthCrystalRewards = [15, 30, 50, 75, 100, 150, 250];
+
+    for (let i = 0; i < rebirths; i++) {
+      if (rebirthCrystalRewards[i]) {
+        missingCrystals += rebirthCrystalRewards[i];
+      }
+    }
+
+    const savedRewards = localStorage.getItem("claimed_rewards");
+    let claimedLevels = [];
+    try {
+      claimedLevels = savedRewards ? decryptData(savedRewards, []) : [];
+    } catch (e) {
+      console.error("Błąd odczytu claimed_rewards przy migracji", e);
+    }
+
+    claimedLevels.forEach((lvl) => {
+      let oldReward = 0;
+      let newReward = 0;
+
+      if (lvl % 5 === 0) oldReward += 1;
+      if (lvl === 10) oldReward += 5;
+      if (lvl === 25) oldReward += 13;
+      if (lvl === 50) oldReward += 25;
+      if (lvl === 100) oldReward += 50;
+      if (lvl === 200) oldReward += 100;
+      if (lvl === 250) oldReward += 125;
+
+      if (lvl % 5 === 0) newReward += Math.floor(lvl / 2);
+      if (lvl === 10) newReward += 25;
+      if (lvl === 25) newReward += 50;
+      if (lvl === 50) newReward += 100;
+      if (lvl === 100) newReward += 200;
+      if (lvl === 200) newReward += 400;
+      if (lvl === 250) newReward += 500;
+
+      if (newReward > oldReward) {
+        missingCrystals += newReward - oldReward;
+      }
+    });
+
+    if (missingCrystals > 0) {
+      setCrystals((prev) => {
+        const newCrystals = Number(prev || 0) + missingCrystals;
+        localStorage.setItem("crystals", encryptData(newCrystals));
+        return newCrystals;
+      });
+      alert(
+        `🎉 Aktualizacja BETA 1.9.0!\n\nW ramach nowego systemu zbalansowaliśmy nagrody. Jako weteran otrzymujesz zaległą rekompensatę: +${missingCrystals} Misiaxów!`,
+      );
+    }
+
+    localStorage.setItem(MIGRATION_KEY, "true");
+  }, [rebirths, setCrystals, encryptData]);
 
   const hasCatEars = items.some(
     (item) => item.id === "cat_ears" && item.amount > 0,
@@ -232,6 +291,7 @@ function Clicker() {
     if (rebirths >= 3) setMaxClickStreak(600);
     if (rebirths >= 4) setMaxClickStreak(1350);
     if (rebirths >= 6) setMaxClickStreak(2100);
+    if (rebirths >= 7) setMaxClickStreak(2850);
   }, [rebirths]);
 
   useEffect(() => {
@@ -279,7 +339,7 @@ function Clicker() {
     };
   }, []);
 
-  const CURRENT_VERSION = "BETA 1.8.0";
+  const CURRENT_VERSION = "BETA 1.9.0";
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -330,8 +390,8 @@ function Clicker() {
       const clickLvl = permUpgrades?.perm_click_mult || 0;
       const xpLvl = permUpgrades?.perm_xp_mult || 0;
 
-      const permClickMult = 1 + clickLvl * 0.05;
-      const permXpMult = 1 + xpLvl * 0.05;
+      const permClickMult = 1 + clickLvl * 0.1;
+      const permXpMult = 1 + xpLvl * 0.1;
 
       if (upgrades.includes("upg_click_1")) addition += 1;
       if (upgrades.includes("upg_click_2")) addition += 2;
@@ -348,6 +408,9 @@ function Clicker() {
       const clickBoost = boosts?.find((b) => b.type === "click_multiplier");
       const xpBoost = boosts?.find((b) => b.type === "xp_multiplier");
       const critBoost = boosts?.find((b) => b.type === "crit_addition");
+      const superCritBoost = boosts?.find(
+        (b) => b.type === "super_crit_addition",
+      );
 
       if (misiaBoost && misiaBoost.endTime > Date.now()) addition *= 3;
       if (clickBoost && clickBoost.endTime > Date.now())
@@ -355,6 +418,8 @@ function Clicker() {
       if (xpBoost && xpBoost.endTime > Date.now()) xpAddition *= xpBoost.value;
       if (critBoost && critBoost.endTime > Date.now())
         critChance += critBoost.value;
+      if (superCritBoost && superCritBoost.endTime > Date.now())
+        superCritChance += superCritBoost.value;
 
       for (let i = 15; i <= maxClickStreak; i += 15) {
         if (clickStreak >= i) clickStreakMultiplier += 0.1;
@@ -374,6 +439,10 @@ function Clicker() {
       if (rebirths >= 6) {
         superCritChance += 0.02;
         crystalsChance += 0.007;
+      }
+      if (rebirths >= 7) {
+        superCritChance += 0.03;
+        crystalsChance += 0.01;
       }
 
       addition *= rebirthClickMultiplier;
@@ -521,8 +590,16 @@ function Clicker() {
     if (rebirths >= 4) dropChance += 0.002;
     if (rebirths >= 5) dropChance += 0.002;
     if (rebirths >= 6) dropChance += 0.003;
+    if (rebirths >= 7) dropChance += 0.005;
 
     if (hasCatEars) dropChance += 0.005;
+
+    const dropChanceBoost = boosts?.find(
+      (b) => b.type === "drop_chance_addition",
+    );
+
+    if (dropChanceBoost && dropChanceBoost.endTime > Date.now())
+      dropChance += dropChanceBoost.value;
 
     if (Math.random() <= dropChance) {
       const droppedItemNow = itemsToDrop[randomItemIndex];
@@ -739,43 +816,80 @@ function Clicker() {
   }, [items, getClickAddition]);
 
   useEffect(() => {
-    const handleLevelRewards = (newLevel) => {
+    const handleLevelRewards = (currentLevel, newLevel) => {
       const savedRewards = localStorage.getItem("claimed_rewards");
       let claimedRewards = savedRewards ? decryptData(savedRewards, []) : [];
 
-      if (claimedRewards.includes(newLevel)) return;
+      let totalScoreReward = 0;
+      let totalCrystalsReward = 0;
+      let rewardsToSave = [...claimedRewards];
 
-      let rewardAmount = 0;
-      if (newLevel === 2) rewardAmount = 1000;
-      if (newLevel === 5) rewardAmount = 3000;
-      if (newLevel === 10) rewardAmount = 10000;
+      for (let lvl = currentLevel + 1; lvl <= newLevel; lvl++) {
+        if (rewardsToSave.includes(lvl)) continue;
 
-      if (rewardAmount > 0) {
-        claimedRewards.push(newLevel);
-        localStorage.setItem("claimed_rewards", encryptData(claimedRewards));
+        let scoreReward = Math.round(100 * Math.pow(lvl, 1.3));
+        totalScoreReward += scoreReward;
 
-        setScore((prev) => {
-          const nScore = prev + rewardAmount;
-          localStorage.setItem("score", encryptData(nScore));
-          return nScore;
-        });
+        if (lvl % 5 === 0) {
+          totalCrystalsReward += Math.round(lvl / 2);
+        }
+
+        if (lvl === 10) totalCrystalsReward += 25;
+        if (lvl === 25) totalCrystalsReward += 50;
+        if (lvl === 50) totalCrystalsReward += 100;
+        if (lvl === 100) {
+          totalCrystalsReward += 200;
+        }
+        if (lvl === 200) {
+          totalCrystalsReward += 400;
+        }
+        if (lvl === 250) {
+          totalCrystalsReward += 500;
+        }
+
+        rewardsToSave.push(lvl);
       }
+
+      if (totalScoreReward > 0 || totalCrystalsReward > 0) {
+        localStorage.setItem("claimed_rewards", encryptData(rewardsToSave));
+
+        if (totalScoreReward > 0) {
+          setScore((prev) => {
+            const newScore = prev + totalScoreReward;
+            localStorage.setItem("score", encryptData(newScore));
+            return newScore;
+          });
+        }
+
+        if (totalCrystalsReward > 0) {
+          setCrystals((prev) => {
+            const newCrystals = (prev || 0) + totalCrystalsReward;
+            localStorage.setItem("crystals", encryptData(newCrystals));
+            return newCrystals;
+          });
+        }
+      }
+      return { score: totalScoreReward, crystals: totalCrystalsReward };
     };
 
     const calculatedLevel = calculateLevelFromXp(xp);
 
     if (calculatedLevel > level) {
+      const earned = handleLevelRewards(level, calculatedLevel);
       setLevel(calculatedLevel);
-      handleLevelRewards(calculatedLevel);
 
       if (isMounted.current) {
-        setShowLevelUp(true);
-        setTimeout(() => setShowLevelUp(false), 2000);
+        setRewardPopup({
+          level: calculatedLevel,
+          score: earned.score,
+          crystals: earned.crystals,
+        });
+        setTimeout(() => setRewardPopup(null), 3000);
       }
     }
 
     isMounted.current = true;
-  }, [xp, level, score]);
+  }, [xp, level]);
 
   const handleAutoClickerChange = () => {
     const hasAnyAuto = upgrades.some((upg) => upg.startsWith("auto_clicker_"));
@@ -853,8 +967,18 @@ function Clicker() {
         />
       )}
 
-      {showLevelUp && (
-        <div className="level-up-notification">AWANS! POZIOM {level}</div>
+      {rewardPopup && (
+        <div className="level-up-notification">
+          <h3>AWANS! POZIOM {rewardPopup.level}</h3>
+
+          <div className="rewards-list">
+            {rewardPopup.score > 0 && <p>+{rewardPopup.score} Kliknięć</p>}
+
+            {rewardPopup.crystals > 0 && (
+              <p>+{rewardPopup.crystals} Misiaxów</p>
+            )}
+          </div>
+        </div>
       )}
 
       {showSettings && (
@@ -905,13 +1029,11 @@ function Clicker() {
       <div className="main-container">
         <div className="version-box">
           <p className="version">{CURRENT_VERSION}</p>
-          <p className="added-things">
-            + Szansa na drop itemów poprostu klikając w Tosię
-          </p>
-          <p className="added-things">+ Nowa waluta - Misiaxy</p>
-          <p className="added-things">+ Zmiany w rebirthach</p>
-          <p className="added-things">+ Rebirth 3, 4, 5 oraz 6</p>
-          <p className="added-things">+ Nowe itemy w sklepie z przedmiotami!</p>
+          <p className="added-things">+ Nagrody za levelowanie!</p>
+          <p className="added-things">+ Zmiany w levelach znowu!</p>
+          <p className="added-things">+ Rebirth 7</p>
+          <p className="added-things">+ Nowe mikstury!</p>
+          <p className="added-things">+ Lekkie zmiany o dostępność misiaxów!</p>
         </div>
         <div className="title">
           <img src={title} alt="" />
@@ -1098,12 +1220,10 @@ function Clicker() {
           })}
         <div className="score-label">
           <span className="score">{score.toLocaleString("pl-PL")}</span>
-          {rebirths > 0 && (
-            <span className="score crystals">
-              <img src={misiax} alt="" />
-              {crystals.toLocaleString("pl-PL")}
-            </span>
-          )}
+          <span className="score crystals">
+            <img src={misiax} alt="" />
+            {crystals.toLocaleString("pl-PL")}
+          </span>
         </div>
         {showLevelBar && <LevelBar level={level} xp={xp} />}
         {showBoosts && (
